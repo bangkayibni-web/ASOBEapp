@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Asobe Teknisi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.0.3/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#F5F7F6; --surface:#FFFFFF; --surface-2:#EEF2F1; --ink:#16221F; --ink-soft:#56635F; --line:#DCE3E1;
+    --accent-900:#0B3D3A; --accent-700:#0F5C56; --accent-500:#3FA796; --accent-100:#E3F1EE;
+    --amber:#C97A3D; --amber-100:#F6E7DA; --ok:#3E8E62; --ok-100:#E3F1E8;
+    --danger:#B0472F; --danger-100:#F7E4DF;
+    --shadow: 0 8px 24px rgba(0,0,0,.08);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1513; --surface:#16211E; --surface-2:#1D2924; --ink:#EAF2EF; --ink-soft:#8FA39D; --line:#2A3A35;
+    --accent-100:#1B3532; --amber-100:#3A2A1B; --ok-100:#1B3324; --danger-100:#3A1F1A;
+    --shadow: 0 8px 24px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0E1513; --surface:#16211E; --surface-2:#1D2924; --ink:#EAF2EF; --ink-soft:#8FA39D; --line:#2A3A35;
+      --accent-100:#1B3532; --amber-100:#3A2A1B; --ok-100:#1B3324; --danger-100:#3A1F1A;
+      --shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-accent="blue"]{ --accent-900:#0E3B5C; --accent-700:#155E8F; --accent-500:#3E93C9; }
+  :root[data-accent="purple"]{ --accent-900:#3A2A5C; --accent-700:#5B4290; --accent-500:#8B72C9; }
+  :root[data-accent="amber2"]{ --accent-900:#5C3A0E; --accent-700:#8F5E15; --accent-500:#C99A3E; }
+  :root[data-accent="teal"]{ --accent-900:#0B3D3A; --accent-700:#0F5C56; --accent-500:#3FA796; }
+
+  :root[data-theme="light"]{ color-scheme: light; }
+  :root[data-theme="dark"]{ color-scheme: dark; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ color-scheme: dark; } }
+  @media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){ color-scheme: light; } }
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;font-size:15px;}
+  h1,h2,h3{font-family:'IBM Plex Sans',sans-serif;font-weight:600;letter-spacing:-0.01em;margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  button{font-family:'Inter';}
+  .app{max-width:460px;margin:0 auto;min-height:100vh;position:relative;}
+  .screen-page{display:none;padding:16px 16px 100px;min-height:100vh;}
+  .screen-page.active{display:block;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;}
+  .who{display:flex;align-items:center;gap:10px;cursor:pointer;background:none;border:none;padding:0;}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--accent-900);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:'IBM Plex Sans';flex-shrink:0;}
+  .who-name{font-size:14.5px;font-weight:700;color:var(--ink);text-align:left;}
+  .who-role{font-size:11.5px;color:var(--ink-soft);text-align:left;}
+  .icon-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);flex-shrink:0;}
+  .icon-btn svg{width:19px;height:19px;}
+  .icon-row{display:flex;gap:8px;}
+  .icon-btn.has-badge{position:relative;}
+  .icon-badge{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:9.5px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+
+  .back-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .back-btn{background:none;border:none;color:var(--accent-700);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:6px;margin-left:-6px;}
+  .back-btn svg{width:22px;height:22px;}
+  .page-title{font-size:17px;flex:1;}
+  .page-actions{display:flex;gap:6px;}
+
+  .banner{background:var(--amber-100);color:var(--amber);font-size:12px;padding:9px 12px;border-radius:9px;margin-bottom:14px;text-align:center;font-weight:600;}
+
+  .big-btn{width:100%;padding:16px;border-radius:14px;border:none;background:var(--accent-900);color:#fff;font-weight:700;font-size:15px;font-family:'IBM Plex Sans';cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:16px;}
+  .big-btn svg{width:20px;height:20px;}
+
+  .attn-card{background:var(--danger-100);border-radius:14px;padding:15px 17px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+  .attn-card.none{background:var(--ok-100);}
+  .attn-card .t{font-weight:700;font-size:14px;color:var(--danger);}
+  .attn-card.none .t{color:var(--ok);}
+  .attn-card .s{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .attn-card .chev{color:var(--danger);}
+  .attn-card.none .chev{color:var(--ok);}
+
+  .section-label{font-size:12px;font-weight:700;color:var(--ink-soft);margin:4px 0 10px;text-transform:uppercase;letter-spacing:.03em;}
+
+  .empty-state{text-align:center;padding:56px 20px;color:var(--ink-soft);}
+  .empty-state svg{width:44px;height:44px;margin-bottom:14px;opacity:.4;}
+  .empty-state p{font-size:13.5px;margin:0;line-height:1.5;}
+
+  .gedung-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 17px;margin-bottom:11px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .gedung-card .info{flex:1;min-width:0;}
+  .gedung-card .name{font-weight:700;font-size:15px;}
+  .gedung-card .sub{font-size:12px;color:var(--ink-soft);margin-top:3px;}
+  .gedung-card .chev{color:var(--ink-soft);flex-shrink:0;}
+  .gedung-card .attn-dot{width:9px;height:9px;border-radius:50%;background:var(--danger);flex-shrink:0;}
+
+  .unit-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;}
+  .unit-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .unit-card-id{font-family:'IBM Plex Mono';font-size:10.5px;color:var(--accent-700);font-weight:600;}
+  .unit-card-name{font-weight:700;font-size:14.5px;margin-top:5px;}
+  .unit-card-loc{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .pick-badge{font-size:10px;padding:4px 9px;border-radius:20px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+  .pick-badge.ok{background:var(--ok-100);color:var(--ok);}
+  .pick-badge.warn{background:var(--amber-100);color:var(--amber);}
+  .pick-badge.danger{background:var(--danger-100);color:var(--danger);}
+
+  .fab{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);max-width:428px;width:calc(100% - 32px);padding:15px;border-radius:15px;border:none;background:var(--accent-900);color:#fff;font-weight:700;font-size:14.5px;font-family:'IBM Plex Sans';cursor:pointer;box-shadow:var(--shadow);z-index:15;display:flex;align-items:center;justify-content:center;gap:8px;}
+
+  .icon-mini-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);flex-shrink:0;}
+  .icon-mini-btn svg{width:15px;height:15px;}
+  .icon-mini-btn.danger{color:var(--danger);}
+
+  .segmented{display:flex;gap:2px;background:var(--surface-2);border-radius:11px;padding:3px;margin-bottom:16px;}
+  .segmented button{flex:1;border:none;background:transparent;padding:10px 4px;border-radius:8px;font-size:13px;font-weight:700;color:var(--ink-soft);cursor:pointer;}
+  .segmented button.active{background:var(--surface);color:var(--accent-900);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+
+  .qr-thumb-row{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:16px;cursor:pointer;}
+  .qr-thumb-box{width:68px;height:68px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:4px;border:1px solid var(--line);}
+  .qr-thumb-box canvas, .qr-thumb-box img{width:100%;height:100%;}
+  .qr-thumb-text{flex:1;}
+  .qr-thumb-id{font-family:'IBM Plex Mono';font-size:13px;font-weight:700;color:var(--accent-900);}
+  .qr-thumb-hint{font-size:11.5px;color:var(--ink-soft);margin-top:3px;}
+
+  .unit-title{font-size:19px;margin-bottom:2px;}
+  .unit-addr{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;}
+  .spec-box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px;}
+  .spec-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;}
+  .spec-row .k{color:var(--ink-soft);}
+  .spec-row .v{font-weight:600;text-align:right;}
+  .oil-swap{width:100%;margin-top:10px;padding:10px;border-radius:9px;border:1px dashed var(--accent-500);background:transparent;color:var(--accent-700);font-weight:700;font-size:12.5px;cursor:pointer;}
+
+  .comp-block{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:15px 16px;margin-bottom:12px;}
+  .comp-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px;gap:8px;}
+  .comp-name-row{display:flex;align-items:center;gap:8px;}
+  .comp-name{font-weight:700;font-size:14.5px;}
+  .comp-type{font-size:11.5px;color:var(--ink-soft);}
+  .comp-status{font-size:10.5px;padding:4px 9px;border-radius:20px;font-weight:700;white-space:nowrap;}
+  .comp-status.ok{background:var(--ok-100);color:var(--ok);}
+  .comp-status.warn{background:var(--amber-100);color:var(--amber);}
+  .comp-status.danger{background:var(--danger-100);color:var(--danger);}
+  .comp-meta{display:flex;gap:18px;margin-bottom:12px;}
+  .comp-meta-item{font-size:12px;}
+  .comp-meta-item .l{color:var(--ink-soft);}
+  .comp-meta-item .v{font-weight:600;margin-top:1px;}
+  .comp-actions{display:flex;gap:8px;}
+  .comp-btn{flex:1;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink);}
+  .comp-btn.primary{background:var(--accent-900);border-color:var(--accent-900);color:#fff;}
+  .comp-icon-row{display:flex;gap:6px;}
+  .hist-toggle{font-size:12px;color:var(--accent-700);font-weight:700;margin-top:10px;cursor:pointer;display:inline-block;}
+  .hist-list{display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:10px;}
+  .hist-list.shown{display:block;}
+  .hist-entry{font-size:12px;padding:6px 0;display:flex;justify-content:space-between;color:var(--ink-soft);gap:8px;align-items:flex-start;}
+  .hist-entry .d{font-family:'IBM Plex Mono';color:var(--ink);white-space:nowrap;font-size:11px;}
+  .hist-entry .rm{background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;flex-shrink:0;}
+  .add-custom{width:100%;padding:13px;border-radius:11px;border:1.5px dashed var(--accent-500);background:transparent;color:var(--accent-700);font-weight:700;font-size:13.5px;cursor:pointer;margin-top:6px;}
+
+  .damage-entry{background:var(--danger-100);color:var(--danger);border-radius:11px;padding:11px 13px;font-size:12.5px;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;}
+  .damage-entry .meta{font-size:10.5px;opacity:.8;margin-top:4px;}
+  .damage-entry .rm{background:none;border:none;color:var(--danger);cursor:pointer;font-size:15px;flex-shrink:0;}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;display:none;align-items:flex-end;justify-content:center;}
+  .modal-backdrop.active{display:flex;}
+  .modal-sheet{background:var(--surface);width:100%;max-width:460px;border-radius:20px 20px 0 0;padding:22px 18px 28px;max-height:90vh;overflow-y:auto;}
+  .modal-title{font-size:17px;margin-bottom:16px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:7px;}
+  .field input, .field select, .field textarea{
+    width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 13px;font-family:'Inter';font-size:14.5px;
+    background:var(--surface-2);color:var(--ink);
+  }
+  .field textarea{resize:none;min-height:76px;}
+  .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:6px;}
+  .field-readonly{background:var(--surface-2);border-radius:10px;padding:12px 13px;font-size:13.5px;color:var(--ink-soft);}
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip-opt{padding:10px 15px;border-radius:20px;border:1px solid var(--line);background:var(--surface-2);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;}
+  .chip-opt.active{background:var(--accent-900);border-color:var(--accent-900);color:#fff;}
+  .chip-opt.add-new{border-style:dashed;border-color:var(--accent-500);color:var(--accent-700);background:transparent;}
+  .modal-btn-row{display:flex;gap:10px;margin-top:8px;}
+  .btn{flex:1;padding:13px;border-radius:11px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:14px;cursor:pointer;color:var(--ink);}
+  .btn.primary{background:var(--accent-900);border-color:var(--accent-900);color:#fff;}
+  .btn.danger{background:var(--danger-100);border-color:var(--danger-100);color:var(--danger);}
+
+  .toggle-comp-card{background:var(--surface-2);border:1.5px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:10px;}
+  .toggle-comp-card.on{border-color:var(--accent-500);background:var(--accent-100);}
+  .toggle-comp-top{display:flex;align-items:center;justify-content:space-between;}
+  .toggle-comp-name{font-weight:700;font-size:14px;}
+  .toggle-comp-sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .toggle-switch{width:44px;height:26px;border-radius:20px;background:var(--line);position:relative;cursor:pointer;flex-shrink:0;}
+  .toggle-switch.on{background:var(--accent-900);}
+  .toggle-knob{width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:left .15s;}
+  .toggle-switch.on .toggle-knob{left:21px;}
+  input, select, textarea{ color: var(--ink); }
+  .toggle-comp-interval{display:flex;align-items:center;gap:8px;margin-top:10px;}
+  .toggle-comp-interval input{width:70px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:13px;}
+  .toggle-comp-interval span{font-size:12px;color:var(--ink-soft);}
+
+  .mini-comp-row{display:flex;gap:8px;align-items:center;background:var(--surface-2);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+  .mini-comp-row .name{flex:1;font-size:13px;font-weight:700;}
+  .mini-comp-row .type-tag{font-size:11px;color:var(--ink-soft);}
+  .mini-comp-row .rm{background:none;border:none;color:var(--danger);font-size:17px;cursor:pointer;line-height:1;}
+
+  .wizard-progress{display:flex;gap:6px;margin-bottom:20px;}
+  .wizard-dot{flex:1;height:5px;border-radius:3px;background:var(--line);}
+  .wizard-dot.done, .wizard-dot.current{background:var(--accent-900);}
+  .wizard-step-label{font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+  .wizard-question{font-size:19px;margin-bottom:18px;}
+  .id-preview{font-family:'IBM Plex Mono';background:var(--accent-100);color:var(--accent-900);padding:12px 14px;border-radius:11px;font-size:14px;font-weight:700;margin-bottom:18px;text-align:center;}
+  .summary-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-row .k{color:var(--ink-soft);}
+  .summary-row .v{font-weight:700;text-align:right;}
+
+  .scan-overlay{position:fixed;inset:0;background:#000;z-index:50;display:none;flex-direction:column;}
+  .scan-overlay.active{display:flex;}
+  .scan-video-wrap{flex:1;position:relative;overflow:hidden;min-height:0;}
+  .scan-video-wrap video{width:100%;height:100%;object-fit:cover;}
+  .scan-frame-guide{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);width:220px;height:220px;border:2.5px solid var(--accent-500);border-radius:16px;pointer-events:none;}
+  .scan-bottom{background:#0B0F0E;padding:16px 16px 22px;}
+  .scan-status{color:#fff;font-size:13px;font-weight:600;margin-bottom:12px;text-align:center;}
+  .scan-manual-row{display:flex;gap:8px;margin-bottom:12px;}
+  .scan-manual-row input{flex:1;border-radius:10px;border:1px solid #3A4A45;background:#182420;color:#fff;padding:11px 13px;font-family:'IBM Plex Mono';font-size:13px;}
+  .scan-manual-row button{background:var(--accent-500);border:none;color:#06201D;font-weight:700;padding:0 18px;border-radius:10px;cursor:pointer;font-size:13px;}
+  #scan-search-results{max-height:180px;overflow-y:auto;margin-bottom:10px;}
+  .scan-result-row{background:#182420;border:1px solid #3A4A45;border-radius:9px;padding:10px 12px;margin-bottom:7px;cursor:pointer;}
+  .scan-result-row .id{font-family:'IBM Plex Mono';color:var(--accent-500);font-size:11.5px;font-weight:700;}
+  .scan-result-row .name{color:#fff;font-size:12.5px;margin-top:2px;}
+  .scan-result-row .loc{color:#8FA39D;font-size:11px;margin-top:1px;}
+  .scan-close{width:100%;background:var(--surface);color:var(--ink);border:none;padding:13px;border-radius:11px;font-weight:700;font-size:14px;cursor:pointer;}
+
+  .qr-modal-content{text-align:center;}
+  #qr-canvas-wrap-big{display:flex;justify-content:center;margin:16px 0;background:#fff;padding:16px;border-radius:14px;}
+
+  .hist-card{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:13px 16px;margin-bottom:10px;cursor:pointer;}
+  .notif-card{background:var(--surface);border:1px solid var(--danger);border-left:4px solid var(--danger);border-radius:13px;padding:13px 16px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .notif-card .info{min-width:0;}
+  .notif-card .comp{font-weight:700;font-size:13.5px;}
+  .notif-card .loc{font-size:11.5px;color:var(--ink-soft);margin-top:2px;font-family:'IBM Plex Mono';}
+  .notif-card .due{font-size:11px;font-weight:700;color:var(--danger);white-space:nowrap;}
+  .hist-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .hist-action{font-weight:700;font-size:13.5px;}
+  .hist-unit{font-size:11.5px;color:var(--accent-700);font-family:'IBM Plex Mono';margin-top:2px;}
+  .hist-note{font-size:11.5px;color:var(--ink-soft);margin-top:5px;}
+  .hist-meta{font-size:10.5px;color:var(--ink-soft);white-space:nowrap;text-align:right;}
+
+  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-70px);background:var(--accent-900);color:#fff;padding:13px 22px;border-radius:11px;font-size:13.5px;font-weight:700;z-index:70;transition:transform .25s;box-shadow:var(--shadow);text-align:center;max-width:90%;}
+  .toast.shown{transform:translateX(-50%) translateY(0);}
+
+  .accent-row{display:flex;gap:12px;margin-top:8px;}
+  .accent-dot{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .accent-dot.active{border-color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ BERANDA ============ -->
+  <div class="screen-page active" id="page-beranda">
+    <div class="topbar">
+      <button class="who" id="profile-btn">
+        <div class="avatar" id="avatar-init">?</div>
+        <div>
+          <div class="who-name" id="who-name">Atur nama</div>
+          <div class="who-role">Teknisi Lapangan</div>
+        </div>
+      </button>
+      <div class="icon-row">
+        <button class="icon-btn has-badge" id="notif-open-btn" title="Notifikasi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="icon-badge" id="notif-badge" style="display:none;">0</span>
+        </button>
+        <button class="icon-btn" id="riwayat-open-btn" title="Riwayat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        </button>
+        <button class="icon-btn" id="settings-btn" title="Pengaturan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="banner" id="mode-banner" style="display:none;"></div>
+
+    <button class="big-btn" id="scan-open-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="9" y="9" width="6" height="6"/></svg>
+      Pindai / Cari Unit
+    </button>
+
+    <div class="attn-card" id="attn-card">
+      <div><div class="t" id="attn-title">Memuat...</div><div class="s" id="attn-sub"></div></div>
+      <div class="chev">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </div>
+
+    <div class="section-label">Daftar Gedung</div>
+    <div id="gedung-list"></div>
+
+    <button class="fab" id="fab-add-gedung">+ Tambah Gedung</button>
+  </div>
+
+  <!-- ============ PERLU PERHATIAN ============ -->
+  <div class="screen-page" id="page-perlu">
+    <div class="back-row">
+      <button class="back-btn" data-back="beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="page-title">Perlu Perhatian</div>
+    </div>
+    <div id="perlu-list"></div>
+  </div>
+
+  <!-- ============ NOTIFIKASI ============ -->
+  <div class="screen-page" id="page-notifikasi">
+    <div class="back-row">
+      <button class="back-btn" data-back="beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="page-title">Notifikasi</div>
+    </div>
+    <div class="field-hint" style="margin-bottom:14px;">Komponen yang jatuh tempo H-1 atau sudah lewat, dari semua gedung.</div>
+    <div id="notif-list"></div>
+  </div>
+
+  <!-- ============ RIWAYAT ============ -->
+  <div class="screen-page" id="page-riwayat">
+    <div class="back-row">
+      <button class="back-btn" data-back="beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="page-title">Riwayat Aktivitas</div>
+    </div>
+    <div class="field-hint" style="margin-bottom:14px;">Ketuk satu catatan untuk mengedit atau menghapusnya.</div>
+    <div id="riwayat-list"></div>
+  </div>
+
+  <!-- ============ DALAM GEDUNG (daftar unit) ============ -->
+  <div class="screen-page" id="page-gedung">
+    <div class="back-row">
+      <button class="back-btn" data-back="beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="page-title" id="gedung-page-title">Gedung</div>
+      <div class="page-actions">
+        <button class="icon-mini-btn" id="home-btn-gedung" title="Beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button>
+        <button class="icon-mini-btn" id="edit-gedung-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+        <button class="icon-mini-btn danger" id="delete-gedung-btn" title="Hapus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z"/></svg></button>
+      </div>
+    </div>
+    <div class="field-hint" id="gedung-page-klien" style="margin-top:-10px;margin-bottom:12px;display:none;"></div>
+    <div class="field" style="margin-bottom:10px;"><input type="text" id="gedung-search-input" placeholder="Cari unit di gedung ini (ID, lokasi, jenis)..."></div>
+    <button class="add-custom" id="open-laporan-btn" style="margin-top:0;margin-bottom:16px;">📄 Buat Laporan Periode (Excel)</button>
+    <div id="unit-list-in-gedung"></div>
+    <button class="fab" id="fab-add-unit">+ Tambah Unit</button>
+  </div>
+
+  <!-- ============ DETAIL UNIT ============ -->
+  <div class="screen-page" id="page-unit">
+    <div class="back-row">
+      <button class="back-btn" id="unit-back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="page-title" id="unit-page-title">Unit</div>
+      <div class="page-actions">
+        <button class="icon-mini-btn" id="home-btn-unit" title="Beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button>
+        <button class="icon-mini-btn" id="edit-unit-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+        <button class="icon-mini-btn danger" id="delete-unit-btn" title="Hapus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z"/></svg></button>
+      </div>
+    </div>
+    <div class="unit-addr" id="d-addr"></div>
+
+    <div class="qr-thumb-row" id="qr-thumb-row">
+      <div class="qr-thumb-box" id="qr-thumb-box"></div>
+      <div class="qr-thumb-text">
+        <div class="qr-thumb-id" id="d-id"></div>
+        <div class="qr-thumb-hint">Ketuk untuk lihat QR besar / cetak</div>
+      </div>
+    </div>
+
+    <div class="spec-box">
+      <div class="spec-row"><span class="k">Jenis unit</span><span class="v" id="d-type"></span></div>
+      <div class="spec-row"><span class="k">Model/kapasitas</span><span class="v" id="d-model"></span></div>
+      <div class="spec-row" id="d-oil-row"><span class="k">Varian oil saat ini</span><span class="v" id="d-oil"></span></div>
+      <button class="oil-swap" id="oil-swap-btn">Ganti varian oil</button>
+    </div>
+
+    <div class="segmented">
+      <button class="active" data-seg="komponen">Komponen</button>
+      <button data-seg="kerusakan">Kerusakan</button>
+    </div>
+
+    <div id="seg-komponen">
+      <div id="components-container"></div>
+      <button class="add-custom" id="btn-add-component">+ Tambah Komponen</button>
+    </div>
+
+    <div id="seg-kerusakan" style="display:none;">
+      <button class="add-custom" id="btn-open-damage" style="margin-top:0;margin-bottom:14px;">+ Laporkan Kerusakan Wadah/Tutup</button>
+      <div id="damage-list"></div>
+    </div>
+  </div>
+
+  <!-- ============ WIZARD TAMBAH UNIT ============ -->
+  <div class="screen-page" id="page-wizard">
+    <div class="back-row">
+      <button class="back-btn" id="wizard-back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="page-title">Tambah Unit</div>
+    </div>
+    <div class="wizard-progress" id="wizard-progress"></div>
+
+    <div class="wizard-step" id="wstep-1">
+      <div class="wizard-step-label">Langkah 1 dari 6</div>
+      <div class="wizard-question">Unit ini ada di lantai/lokasi mana?</div>
+      <div class="field"><label>Nama lokasi</label><input type="text" id="w-lantai-nama" placeholder="mis. Lantai 3 Toilet Wanita"></div>
+      <div class="field"><label>Kode singkat lokasi</label><input type="text" id="w-lantai-kode" placeholder="mis. L3" style="text-transform:uppercase;"></div>
+    </div>
+
+    <div class="wizard-step" id="wstep-2" style="display:none;">
+      <div class="wizard-step-label">Langkah 2 dari 6</div>
+      <div class="wizard-question">Ini jenis unit apa?</div>
+      <div class="field"><input type="text" id="w-tipe" list="tipe-suggestions" placeholder="Ketik jenis unit, mis. Handsoap"></div>
+      <datalist id="tipe-suggestions"></datalist>
+      <div class="field-hint">Bebas ketik — saran muncul dari jenis yang pernah dipakai.</div>
+    </div>
+
+    <div class="wizard-step" id="wstep-3" style="display:none;">
+      <div class="wizard-step-label">Langkah 3 dari 6</div>
+      <div class="wizard-question">Model/kapasitasnya apa? (boleh dilewati)</div>
+      <div class="field"><input type="text" id="w-model" list="model-suggestions" placeholder="mis. M200 (100ml)"></div>
+      <datalist id="model-suggestions"></datalist>
+    </div>
+
+    <div class="wizard-step" id="wstep-4" style="display:none;">
+      <div class="wizard-step-label">Langkah 4 dari 6</div>
+      <div class="wizard-question">Unit ini pakai varian oil/wewangian?</div>
+      <div class="field">
+        <div class="chip-row">
+          <div class="chip-opt" id="w-oil-yes">Ya, pakai oil</div>
+          <div class="chip-opt active" id="w-oil-no">Tidak</div>
+        </div>
+      </div>
+      <div class="field" id="w-oil-field" style="display:none;">
+        <label>Varian oil awal</label>
+        <input type="text" id="w-oil" list="oil-suggestions" placeholder="mis. Lemon Gress">
+        <datalist id="oil-suggestions"></datalist>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="wstep-5" style="display:none;">
+      <div class="wizard-step-label">Langkah 5 dari 6</div>
+      <div class="wizard-question">Komponen apa saja di unit ini?</div>
+      <div class="field-hint" style="margin-bottom:12px;">Nyalakan komponen yang sesuai, atur berapa hari sekali diservis. Bisa tambah sendiri kalau belum ada di daftar.</div>
+      <div id="wizard-toggle-comps"></div>
+      <div class="section-label" style="margin-top:16px;">Tambah komponen lain</div>
+      <div class="field"><input type="text" id="w-new-comp-name" placeholder="Nama komponen, mis. Sensor Otomatis"></div>
+      <div class="field">
+        <div class="chip-row">
+          <div class="chip-opt active" data-newcomp-type="Consumable">Bahan Habis Pakai</div>
+          <div class="chip-opt" data-newcomp-type="Part">Suku Cadang</div>
+        </div>
+      </div>
+      <div class="field"><label>Diservis tiap berapa hari?</label><input type="number" id="w-new-comp-interval" value="14" min="1"></div>
+      <button class="add-custom" id="w-new-comp-add-btn">+ Tambahkan ke daftar</button>
+      <div class="section-label" style="margin-top:18px;">Komponen yang akan disimpan</div>
+      <div id="wizard-final-comps"></div>
+    </div>
+
+    <div class="wizard-step" id="wstep-6" style="display:none;">
+      <div class="wizard-step-label">Langkah 6 dari 6</div>
+      <div class="wizard-question">Periksa lagi sebelum disimpan</div>
+      <div class="id-preview" id="w-id-preview"></div>
+      <div class="spec-box">
+        <div class="summary-row"><span class="k">Gedung</span><span class="v" id="w-sum-gedung"></span></div>
+        <div class="summary-row"><span class="k">Lokasi</span><span class="v" id="w-sum-lokasi"></span></div>
+        <div class="summary-row"><span class="k">Jenis unit</span><span class="v" id="w-sum-tipe"></span></div>
+        <div class="summary-row"><span class="k">Model</span><span class="v" id="w-sum-model"></span></div>
+        <div class="summary-row"><span class="k">Oil</span><span class="v" id="w-sum-oil"></span></div>
+        <div class="summary-row"><span class="k">Jumlah komponen</span><span class="v" id="w-sum-comps"></span></div>
+      </div>
+    </div>
+
+    <div class="modal-btn-row" style="margin-top:10px;">
+      <button class="btn" id="wizard-prev-btn" style="display:none;">‹ Sebelumnya</button>
+      <button class="btn primary" id="wizard-next-btn">Lanjut ›</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- SCAN OVERLAY -->
+<div class="scan-overlay" id="scan-overlay">
+  <div class="scan-video-wrap">
+    <video id="scan-video" playsinline autoplay muted></video>
+    <div class="scan-frame-guide"></div>
+  </div>
+  <div class="scan-bottom">
+    <div class="scan-status" id="scan-status">Arahkan kamera ke QR unit...</div>
+    <div class="scan-manual-row">
+      <input type="text" id="scan-manual-input" placeholder="Ketik ID, jenis, atau lokasi unit...">
+      <button id="scan-manual-btn">Buka</button>
+    </div>
+    <div id="scan-search-results"></div>
+    <button class="scan-close" id="scan-close-btn">Tutup</button>
+  </div>
+</div>
+
+<!-- MODAL: Profile -->
+<div class="modal-backdrop" id="modal-profile">
+  <div class="modal-sheet">
+    <div class="modal-title">Profil Teknisi</div>
+    <div class="field"><label>Nama</label><input type="text" id="input-profile-name" placeholder="Nama Anda"></div>
+    <div class="modal-btn-row">
+      <button class="btn" data-close-modal="modal-profile">Batal</button>
+      <button class="btn primary" id="save-profile-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Settings -->
+<div class="modal-backdrop" id="modal-settings">
+  <div class="modal-sheet">
+    <div class="modal-title">Tampilan</div>
+    <div class="field">
+      <label>Mode</label>
+      <div class="chip-row">
+        <div class="chip-opt" data-theme-opt="light">Terang</div>
+        <div class="chip-opt" data-theme-opt="dark">Gelap</div>
+        <div class="chip-opt" data-theme-opt="auto">Ikuti HP</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Warna aksen</label>
+      <div class="accent-row">
+        <div class="accent-dot" data-accent-opt="teal" style="background:#0F5C56;"></div>
+        <div class="accent-dot" data-accent-opt="blue" style="background:#155E8F;"></div>
+        <div class="accent-dot" data-accent-opt="purple" style="background:#5B4290;"></div>
+        <div class="accent-dot" data-accent-opt="amber2" style="background:#8F5E15;"></div>
+      </div>
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn" id="open-export-btn" style="width:100%;">Ekspor Data (CSV)</button>
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn primary" data-close-modal="modal-settings" style="width:100%;">Selesai</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Export -->
+<div class="modal-backdrop" id="modal-export">
+  <div class="modal-sheet">
+    <div class="modal-title">Ekspor Data</div>
+    <div class="field-hint" style="margin-bottom:16px;">Unduh data sebagai file CSV (bisa dibuka di Excel/Sheets).</div>
+    <div class="modal-btn-row" style="margin-bottom:10px;">
+      <button class="btn" id="export-units-btn" style="width:100%;">Ekspor Daftar Unit</button>
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn" id="export-activity-btn" style="width:100%;">Ekspor Riwayat Aktivitas</button>
+    </div>
+    <div class="modal-btn-row" style="margin-top:14px;">
+      <button class="btn primary" data-close-modal="modal-export" style="width:100%;">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Tambah/Edit Gedung -->
+<div class="modal-backdrop" id="modal-gedung">
+  <div class="modal-sheet">
+    <div class="modal-title" id="gedung-modal-title">Tambah Gedung</div>
+    <div class="field"><label>Nama gedung</label><input type="text" id="input-gedung-nama" placeholder="mis. Gedung Menara Sudirman"></div>
+    <div class="field"><label>Nama klien (opsional)</label><input type="text" id="input-gedung-klien" placeholder="mis. PT IAS Support Indonesia"></div>
+    <div class="field" id="gedung-kode-field"><label>Kode singkat</label><input type="text" id="input-gedung-kode" placeholder="mis. MSDN" style="text-transform:uppercase;"></div>
+    <div class="field-hint" id="gedung-kode-hint" style="margin-top:-10px;">Kode ini dipakai di ID unit, usahakan singkat & unik. Tidak bisa diubah setelah dibuat.</div>
+    <div class="modal-btn-row">
+      <button class="btn" data-close-modal="modal-gedung">Batal</button>
+      <button class="btn primary" id="save-gedung-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Unit -->
+<div class="modal-backdrop" id="modal-edit-unit">
+  <div class="modal-sheet">
+    <div class="modal-title">Edit Unit</div>
+    <div class="field"><label>ID unit (tidak bisa diubah)</label><div class="field-readonly mono" id="eu-id-display"></div></div>
+    <div class="field"><label>Nama lokasi</label><input type="text" id="eu-lantai-nama"></div>
+    <div class="field"><label>Model/kapasitas</label><input type="text" id="eu-model" list="model-suggestions"></div>
+    <div class="modal-btn-row">
+      <button class="btn" data-close-modal="modal-edit-unit">Batal</button>
+      <button class="btn primary" id="save-edit-unit-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Component action (refill/ganti) -->
+<div class="modal-backdrop" id="modal-comp-action">
+  <div class="modal-sheet">
+    <div class="modal-title" id="comp-action-title">Catat Tindakan</div>
+    <div class="field"><label id="comp-action-qty-label">Jumlah (opsional)</label><input type="number" id="comp-action-qty" step="0.1" min="0" placeholder="0"></div>
+    <div class="field"><label>Catatan (opsional)</label><textarea id="comp-action-note" placeholder="Kondisi saat ini, dsb"></textarea></div>
+    <div class="field"><label>Waktu dikerjakan</label><input type="datetime-local" id="comp-action-datetime"></div>
+    <div class="modal-btn-row">
+      <button class="btn" data-close-modal="modal-comp-action">Batal</button>
+      <button class="btn primary" id="comp-action-save-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add/Edit component (existing unit) -->
+<div class="modal-backdrop" id="modal-add-comp">
+  <div class="modal-sheet">
+    <div class="modal-title" id="add-comp-modal-title">Tambah Komponen</div>
+    <div class="field"><label>Nama komponen</label><input type="text" id="add-comp-name" placeholder="mis. Sensor Otomatis"></div>
+    <div class="field">
+      <label>Jenis</label>
+      <div class="chip-row">
+        <div class="chip-opt active" data-comp-type="Consumable">Bahan Habis Pakai</div>
+        <div class="chip-opt" data-comp-type="Part">Suku Cadang</div>
+      </div>
+    </div>
+    <div class="field"><label>Diservis tiap berapa hari?</label><input type="number" id="add-comp-interval" value="14" min="1"></div>
+    <div class="modal-btn-row">
+      <button class="btn danger" id="delete-comp-btn" style="display:none;">Hapus</button>
+      <button class="btn" data-close-modal="modal-add-comp">Batal</button>
+      <button class="btn primary" id="add-comp-save-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Oil swap -->
+<div class="modal-backdrop" id="modal-oil-swap">
+  <div class="modal-sheet">
+    <div class="modal-title">Ganti Varian Oil</div>
+    <div class="field"><label>Varian oil baru</label><input type="text" id="oil-swap-input" list="oil-suggestions" placeholder="mis. Amber Zest"></div>
+    <div class="field"><label>Waktu penggantian</label><input type="datetime-local" id="oil-swap-datetime"></div>
+    <div class="modal-btn-row">
+      <button class="btn" data-close-modal="modal-oil-swap">Batal</button>
+      <button class="btn primary" id="oil-swap-save-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Damage report -->
+<div class="modal-backdrop" id="modal-damage">
+  <div class="modal-sheet">
+    <div class="modal-title" id="damage-modal-title">Laporkan Kerusakan</div>
+    <div class="field"><label>Catatan kerusakan</label><textarea id="damage-input" placeholder="Contoh: tutup tong retak, engsel patah..."></textarea></div>
+    <div class="field"><label>Waktu kejadian/laporan</label><input type="datetime-local" id="damage-datetime"></div>
+    <div class="modal-btn-row">
+      <button class="btn danger" id="delete-damage-btn" style="display:none;">Hapus</button>
+      <button class="btn" data-close-modal="modal-damage">Batal</button>
+      <button class="btn primary" id="damage-save-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Laporan Periode -->
+<div class="modal-backdrop" id="modal-laporan">
+  <div class="modal-sheet">
+    <div class="modal-title">Buat Laporan Periode</div>
+    <div class="field">
+      <label>Pilih periode</label>
+      <div class="chip-row">
+        <div class="chip-opt active" data-periode="1">Periode 1 (1–15)</div>
+        <div class="chip-opt" data-periode="2">Periode 2 (16–akhir)</div>
+        <div class="chip-opt" data-periode="custom">Tanggal custom</div>
+      </div>
+    </div>
+    <div class="field" id="laporan-custom-dates" style="display:none;">
+      <label>Dari tanggal</label><input type="date" id="laporan-start-date">
+      <label style="margin-top:10px;">Sampai tanggal</label><input type="date" id="laporan-end-date">
+    </div>
+    <div class="field-hint" id="laporan-range-preview" style="margin-bottom:16px;"></div>
+    <div class="modal-btn-row">
+      <button class="btn" data-close-modal="modal-laporan">Batal</button>
+      <button class="btn primary" id="laporan-generate-btn">Buat & Unduh</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: QR display -->
+<div class="modal-backdrop" id="modal-qr">
+  <div class="modal-sheet qr-modal-content">
+    <div class="modal-title" id="qr-modal-title">QR Unit</div>
+    <div id="qr-canvas-wrap-big"></div>
+    <div class="field-hint" style="margin-bottom:14px;">Unduh gambarnya untuk dicetak dan ditempel di unit.</div>
+    <div class="modal-btn-row">
+      <button class="btn" id="qr-download-btn">Unduh QR</button>
+      <button class="btn primary" data-close-modal="modal-qr">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Confirm (generic) -->
+<div class="modal-backdrop" id="modal-confirm">
+  <div class="modal-sheet">
+    <div class="modal-title" id="confirm-title">Konfirmasi</div>
+    <div class="field-hint" id="confirm-message" style="margin-bottom:18px;font-size:13.5px;"></div>
+    <div class="modal-btn-row">
+      <button class="btn" data-close-modal="modal-confirm">Batal</button>
+      <button class="btn danger" id="confirm-yes-btn">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit riwayat entry -->
+<div class="modal-backdrop" id="modal-edit-riwayat">
+  <div class="modal-sheet">
+    <div class="modal-title">Edit Catatan Riwayat</div>
+    <div class="field"><label>Keterangan</label><input type="text" id="er-action"></div>
+    <div class="field"><label>Catatan</label><textarea id="er-note"></textarea></div>
+    <div class="field"><label>Waktu</label><input type="datetime-local" id="er-datetime"></div>
+    <div class="modal-btn-row">
+      <button class="btn danger" id="er-delete-btn">Hapus</button>
+      <button class="btn" data-close-modal="modal-edit-riwayat">Batal</button>
+      <button class="btn primary" id="er-save-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  const DAY_MS = 86400000;
+  function nowISO(){ return new Date().toISOString(); }
+  function today(){ return new Date(); }
+  function fmt(iso){ if(!iso) return '-'; return new Date(iso).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}); }
+  function fmtDateTime(iso){
+    if(!iso) return '-';
+    const d = new Date(iso);
+    return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  }
+  function nowLocalInputValue(){ const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16); }
+  function isoToLocalInputValue(iso){ const d = new Date(iso); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16); }
+  function localInputToISO(val){ return val ? new Date(val).toISOString() : nowISO(); }
+  function uid(){ return 'u'+Math.random().toString(36).slice(2,10); }
+  function escapeHTML(s){ const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+  function typeLabel(t){ return t === 'Consumable' ? 'Bahan Habis Pakai' : 'Suku Cadang'; }
+
+  /* ---------------- profile & theme ---------------- */
+  const profile = JSON.parse(localStorage.getItem('asobe_profile')||'{}');
+  function saveProfile(p){ localStorage.setItem('asobe_profile', JSON.stringify(p)); }
+  function initTheme(){
+    const t = localStorage.getItem('asobe_theme') || 'auto';
+    if(t === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', t);
+    document.documentElement.setAttribute('data-accent', localStorage.getItem('asobe_accent') || 'teal');
+  }
+  initTheme();
+  function refreshProfileUI(){
+    const nameEl = document.getElementById('who-name'), avEl = document.getElementById('avatar-init');
+    if(profile.name){ nameEl.textContent = profile.name; avEl.textContent = profile.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+    else { nameEl.textContent = 'Atur nama'; avEl.textContent = '?'; }
+  }
+  refreshProfileUI();
+
+  function showToast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('shown'); setTimeout(()=>t.classList.remove('shown'), 2200); }
+  function openModal(id){ document.getElementById(id).classList.add('active'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+  document.querySelectorAll('[data-close-modal]').forEach(btn=> btn.addEventListener('click', ()=> closeModal(btn.dataset.closeModal)));
+  document.querySelectorAll('.modal-backdrop').forEach(bd=> bd.addEventListener('click', (e)=>{ if(e.target === bd) bd.classList.remove('active'); }));
+
+  /* generic in-app confirmation (native confirm() is unreliable inside published pages) */
+  let pendingConfirmAction = null;
+  function askConfirm(message, onConfirm){
+    document.getElementById('confirm-message').textContent = message;
+    pendingConfirmAction = onConfirm;
+    openModal('modal-confirm');
+  }
+  document.getElementById('confirm-yes-btn').addEventListener('click', async ()=>{
+    closeModal('modal-confirm');
+    const action = pendingConfirmAction;
+    pendingConfirmAction = null;
+    if(action) await action();
+  });
+
+  /* ---------------- QR generation (embedded library, no external QR service) ---------------- */
+  function renderQRInto(containerEl, text, pixelSize){
+    containerEl.innerHTML = '';
+    try{
+      const qr = qrcode(0, 'M');
+      qr.addData(text);
+      qr.make();
+      const moduleCount = qr.getModuleCount();
+      const cellSize = Math.max(2, Math.floor(pixelSize / moduleCount));
+      containerEl.innerHTML = qr.createImgTag(cellSize, cellSize);
+      const imgEl = containerEl.querySelector('img');
+      if(imgEl){ imgEl.style.width='100%'; imgEl.style.height='100%'; imgEl.style.display='block'; return imgEl.getAttribute('src'); }
+      return null;
+    }catch(e){
+      console.error('QR generation failed', e);
+      containerEl.innerHTML = '<div class="mono" style="font-size:12px;padding:8px;word-break:break-all;text-align:center;">'+escapeHTML(text)+'</div>';
+      return null;
+    }
+  }
+
+  /* ---------------- screen navigation ---------------- */
+  function showScreen(name){
+    document.querySelectorAll('.screen-page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('[data-back]').forEach(btn=> btn.addEventListener('click', ()=> showScreen(btn.dataset.back)));
+
+  /* ---------------- downloads capability ---------------- */
+  let downloadsRef = null;
+  async function initDownloads(){
+    try{ if(window.claude && window.claude.use) downloadsRef = await window.claude.use('downloads'); }catch(e){ downloadsRef = null; }
+  }
+  async function offerDownload(filename, data){
+    if(!downloadsRef){ showToast('Unduh file tidak tersedia di sini'); return false; }
+    try{ await downloadsRef.save({filename, data}); showToast('File disimpan'); return true; }
+    catch(e){
+      if(e && e.code === 'declined'){ /* user cancelled, no toast */ }
+      else { console.error('download failed', e); showToast('Gagal mengunduh file'); }
+      return false;
+    }
+  }
+
+  /* ---------------- storage abstraction ---------------- */
+  let backend = null, dbRef = null;
+  let unitsCache = {}, gedungCache = {}, activityCache = [];
+
+  function localLoadUnits(){ return JSON.parse(localStorage.getItem('asobe_units')||'{}'); }
+  function localSaveUnits(u){ localStorage.setItem('asobe_units', JSON.stringify(u)); }
+  function localLoadGedung(){ return JSON.parse(localStorage.getItem('asobe_gedung')||'{}'); }
+  function localSaveGedung(g){ localStorage.setItem('asobe_gedung', JSON.stringify(g)); }
+  function localLoadActivity(){ return JSON.parse(localStorage.getItem('asobe_activity')||'[]'); }
+  function localSaveActivity(a){ localStorage.setItem('asobe_activity', JSON.stringify(a.slice(0,80))); }
+
+  async function initStorage(){
+    try{ if(window.claude && window.claude.use) dbRef = await window.claude.use('db'); }catch(e){ dbRef = null; }
+
+    if(dbRef){
+      backend = 'db';
+      document.getElementById('mode-banner').style.display = 'none';
+      dbRef.collection('units').onSnapshot(snap=>{
+        const next = {}; snap.docs.forEach(d=>{ if(d.exists) next[d.id] = d.data(); });
+        unitsCache = next; renderAll();
+      }, err=>{ console.error(err); showToast('Koneksi data bermasalah'); });
+      dbRef.collection('gedung').onSnapshot(snap=>{
+        const next = {}; snap.docs.forEach(d=>{ if(d.exists) next[d.id] = d.data(); });
+        gedungCache = next; renderAll();
+      }, err=>console.error(err));
+      dbRef.collection('activity').orderBy('date','desc').limit(80).onSnapshot(snap=>{
+        activityCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        renderRiwayat();
+      }, err=>console.error(err));
+    } else {
+      backend = 'local';
+      document.getElementById('mode-banner').style.display = 'block';
+      document.getElementById('mode-banner').textContent = 'Mode lokal: data hanya tersimpan di HP ini, belum tersambung ke tim.';
+      unitsCache = localLoadUnits(); gedungCache = localLoadGedung(); activityCache = localLoadActivity();
+      renderAll(); renderRiwayat();
+    }
+  }
+  function renderAll(){
+    renderBeranda();
+    renderNotifikasi();
+    if(document.getElementById('page-gedung').classList.contains('active')) renderGedungPage();
+    if(document.getElementById('page-unit').classList.contains('active')) renderUnitPage();
+    if(document.getElementById('page-perlu').classList.contains('active')) renderPerlu();
+  }
+
+  async function saveUnit(id, data){ if(backend==='db'){ await dbRef.collection('units').doc(id).set(data); } else { unitsCache[id]=data; localSaveUnits(unitsCache); renderAll(); } }
+  async function updateUnitDoc(id, patch){ if(backend==='db'){ await dbRef.collection('units').doc(id).update(patch); } else { unitsCache[id]=Object.assign({},unitsCache[id],patch); localSaveUnits(unitsCache); renderAll(); } }
+  async function deleteUnitDoc(id){ if(backend==='db'){ await dbRef.collection('units').doc(id).delete(); } else { delete unitsCache[id]; localSaveUnits(unitsCache); renderAll(); } }
+  async function saveGedungDoc(kode, data){ if(backend==='db'){ await dbRef.collection('gedung').doc(kode).set(data); } else { gedungCache[kode]=data; localSaveGedung(gedungCache); renderAll(); } }
+  async function updateGedungDoc(kode, patch){ if(backend==='db'){ await dbRef.collection('gedung').doc(kode).update(patch); } else { gedungCache[kode]=Object.assign({},gedungCache[kode],patch); localSaveGedung(gedungCache); renderAll(); } }
+  async function deleteGedungDoc(kode){ if(backend==='db'){ await dbRef.collection('gedung').doc(kode).delete(); } else { delete gedungCache[kode]; localSaveGedung(gedungCache); renderAll(); } }
+  async function logActivity(entry, whenISO){
+    entry.date = whenISO || nowISO();
+    if(backend==='db'){ await dbRef.collection('activity').add(entry); }
+    else { activityCache.unshift(Object.assign({id:uid()}, entry)); activityCache.sort((a,b)=>new Date(b.date)-new Date(a.date)); localSaveActivity(activityCache); renderRiwayat(); }
+  }
+  async function updateActivityDoc(id, patch){
+    if(backend==='db'){ await dbRef.collection('activity').doc(id).update(patch); }
+    else { const i=activityCache.findIndex(a=>a.id===id); if(i>=0) activityCache[i]=Object.assign({},activityCache[i],patch); localSaveActivity(activityCache); renderRiwayat(); }
+  }
+  async function deleteActivityDoc(id){
+    if(backend==='db'){ await dbRef.collection('activity').doc(id).delete(); }
+    else { activityCache = activityCache.filter(a=>a.id!==id); localSaveActivity(activityCache); renderRiwayat(); }
+  }
+
+  /* ---------------- status logic ---------------- */
+  function compStatus(comp){
+    const last = new Date(comp.lastDate);
+    const due = new Date(last.getTime() + comp.intervalDays*DAY_MS);
+    const diffDays = Math.round((due - today())/DAY_MS);
+    if(diffDays < 0) return {label:'Lewat '+Math.abs(diffDays)+'h', cls:'danger', due, diffDays};
+    if(diffDays <= 3) return {label:diffDays===0?'Hari ini':'H-'+diffDays, cls:'warn', due, diffDays};
+    return {label:'Aman · '+diffDays+'h', cls:'ok', due, diffDays};
+  }
+  function unitWorstStatus(unit){
+    let worst='ok', worstN=999;
+    (unit.components||[]).forEach(c=>{ const s=compStatus(c);
+      if(s.cls==='danger'){ worst='danger'; worstN=Math.min(worstN,s.diffDays); }
+      else if(s.cls==='warn' && worst!=='danger'){ worst='warn'; worstN=Math.min(worstN,s.diffDays); }
+    });
+    return {worst, worstN};
+  }
+  function actionLabel(unit, comp){
+    const tipeLower = (unit.tipe||'').toLowerCase();
+    if(tipeLower === 'ladybin' && comp.type === 'Consumable') return 'Ganti Plastik';
+    return comp.type === 'Consumable' ? 'Isi Ulang' : 'Ganti';
+  }
+  const knownTipeKode = {'scenting':'SCT','aerosol':'AER','ladybin':'LDB','handsoap':'HSP','urinoil':'URN','air freshener':'AFR'};
+  function deriveTipeKode(nama){
+    const key = nama.trim().toLowerCase();
+    if(knownTipeKode[key]) return knownTipeKode[key];
+    const letters = nama.replace(/[^a-zA-Z]/g,'').toUpperCase();
+    return (letters.slice(0,3) || 'GEN').padEnd(3,'X');
+  }
+  function unitLabel(u){ return u.tipe + (u.model ? ' — '+u.model : ''); }
+  function emptyStateHTML(msg){ return `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6v6H9z"/></svg><p>${msg.replace(/\n/g,'<br>')}</p></div>`; }
+
+  /* ============ BERANDA ============ */
+  function renderBeranda(){
+    const ids = Object.keys(unitsCache);
+    const attnIds = ids.filter(id=> unitWorstStatus(unitsCache[id]).worst !== 'ok');
+    const attnCard = document.getElementById('attn-card');
+    if(attnIds.length === 0){
+      attnCard.className = 'attn-card none';
+      document.getElementById('attn-title').textContent = 'Semua unit aman';
+      document.getElementById('attn-sub').textContent = 'Tidak ada yang perlu dikerjakan sekarang';
+    } else {
+      attnCard.className = 'attn-card';
+      document.getElementById('attn-title').textContent = attnIds.length+' unit perlu perhatian';
+      document.getElementById('attn-sub').textContent = 'Ketuk untuk lihat daftarnya';
+    }
+
+    const gedungList = document.getElementById('gedung-list');
+    gedungList.innerHTML = '';
+    const kodes = Object.keys(gedungCache);
+    if(kodes.length === 0){
+      gedungList.innerHTML = emptyStateHTML('Belum ada gedung ditambahkan.\nKetuk "+ Tambah Gedung" di bawah.');
+      return;
+    }
+    kodes.forEach(kode=>{
+      const g = gedungCache[kode];
+      const unitCount = ids.filter(id=>unitsCache[id].gedungKode===kode).length;
+      const needsAttn = ids.some(id=>unitsCache[id].gedungKode===kode && unitWorstStatus(unitsCache[id]).worst!=='ok');
+      const card = document.createElement('div');
+      card.className = 'gedung-card';
+      card.innerHTML = `
+        <div class="info">
+          <div class="name">${escapeHTML(g.nama)}</div>
+          <div class="sub">${g.klien ? escapeHTML(g.klien)+' · ' : ''}${unitCount} unit terdaftar</div>
+        </div>
+        ${needsAttn ? '<div class="attn-dot"></div>' : ''}
+        <div class="chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+      `;
+      card.addEventListener('click', ()=> openGedung(kode));
+      gedungList.appendChild(card);
+    });
+  }
+  document.getElementById('attn-card').addEventListener('click', ()=>{ showScreen('perlu'); renderPerlu(); });
+
+  function renderPerlu(){
+    const el = document.getElementById('perlu-list');
+    el.innerHTML = '';
+    const ids = Object.keys(unitsCache).filter(id=> unitWorstStatus(unitsCache[id]).worst!=='ok')
+      .sort((a,b)=> unitWorstStatus(unitsCache[a]).worstN - unitWorstStatus(unitsCache[b]).worstN);
+    if(ids.length === 0){ el.innerHTML = emptyStateHTML('Semua unit aman. 👍'); return; }
+    ids.forEach(id=>{
+      const u = unitsCache[id];
+      const {worst} = unitWorstStatus(u);
+      const badgeText = worst==='danger' ? 'Lewat jatuh tempo' : 'Segera';
+      const card = document.createElement('div');
+      card.className = 'unit-card';
+      card.innerHTML = `
+        <div class="unit-card-top"><span class="unit-card-id">${id}</span><span class="pick-badge ${worst}">${badgeText}</span></div>
+        <div class="unit-card-name">${escapeHTML(unitLabel(u))}</div>
+        <div class="unit-card-loc">${escapeHTML(u.gedung)}, ${escapeHTML(u.lantai)}</div>
+      `;
+      card.addEventListener('click', ()=>{ unitBackTarget = 'perlu'; openUnit(id); });
+      el.appendChild(card);
+    });
+  }
+
+  function renderNotifikasi(){
+    const items = [];
+    Object.keys(unitsCache).forEach(id=>{
+      const u = unitsCache[id];
+      (u.components||[]).forEach(c=>{
+        const s = compStatus(c);
+        if(s.diffDays <= 1){
+          items.push({unitId:id, unitLabel:unitLabel(u), gedung:u.gedung, gedungKode:u.gedungKode, compName:c.name, diffDays:s.diffDays, due:s.due});
+        }
+      });
+    });
+    items.sort((a,b)=> a.diffDays - b.diffDays);
+
+    const badge = document.getElementById('notif-badge');
+    if(items.length === 0){ badge.style.display = 'none'; }
+    else { badge.style.display = 'flex'; badge.textContent = items.length > 99 ? '99+' : items.length; }
+
+    const list = document.getElementById('notif-list');
+    if(!list) return;
+    list.innerHTML = '';
+    if(items.length === 0){ list.innerHTML = emptyStateHTML('Tidak ada yang mendesak sekarang. 👍'); return; }
+    items.forEach(it=>{
+      const dueTxt = it.diffDays < 0 ? 'Lewat '+Math.abs(it.diffDays)+' hari' : it.diffDays===0 ? 'Jatuh tempo hari ini' : 'H-'+it.diffDays;
+      const card = document.createElement('div');
+      card.className = 'notif-card';
+      card.innerHTML = `
+        <div class="info">
+          <div class="comp">${escapeHTML(it.compName)} — ${escapeHTML(it.unitLabel)}</div>
+          <div class="loc">${it.unitId} · ${escapeHTML(it.gedung)}</div>
+        </div>
+        <div class="due">${dueTxt}</div>
+      `;
+      card.addEventListener('click', ()=>{ currentGedungKode = it.gedungKode; unitBackTarget='notifikasi'; openUnit(it.unitId); });
+      list.appendChild(card);
+    });
+  }
+  document.getElementById('notif-open-btn').addEventListener('click', ()=>{ showScreen('notifikasi'); renderNotifikasi(); });
+
+  function renderRiwayat(){
+    const el = document.getElementById('riwayat-list');
+    el.innerHTML = '';
+    if(activityCache.length === 0){ el.innerHTML = emptyStateHTML('Belum ada aktivitas tercatat.'); return; }
+    activityCache.forEach(a=>{
+      const div = document.createElement('div');
+      div.className = 'hist-card';
+      div.innerHTML = `
+        <div class="hist-top">
+          <div>
+            <div class="hist-action">${escapeHTML(a.action)}</div>
+            <div class="hist-unit">${escapeHTML(a.unitId||'')} — ${escapeHTML(a.unitLabel||'')}</div>
+            ${a.note ? `<div class="hist-note">${escapeHTML(a.note)}</div>` : ''}
+          </div>
+          <div class="hist-meta">${escapeHTML(a.teknisi||'-')}<br>${fmtDateTime(a.date)}</div>
+        </div>`;
+      div.addEventListener('click', ()=> openEditRiwayat(a));
+      el.appendChild(div);
+    });
+  }
+  let editingRiwayatId = null;
+  function openEditRiwayat(a){
+    editingRiwayatId = a.id;
+    document.getElementById('er-action').value = a.action || '';
+    document.getElementById('er-note').value = a.note || '';
+    document.getElementById('er-datetime').value = isoToLocalInputValue(a.date);
+    openModal('modal-edit-riwayat');
+  }
+  document.getElementById('er-save-btn').addEventListener('click', async ()=>{
+    const action = document.getElementById('er-action').value.trim();
+    const note = document.getElementById('er-note').value.trim();
+    const whenISO = localInputToISO(document.getElementById('er-datetime').value);
+    if(!action){ showToast('Isi keterangan dulu'); return; }
+    try{ await updateActivityDoc(editingRiwayatId, {action, note, date: whenISO}); closeModal('modal-edit-riwayat'); showToast('Riwayat diperbarui'); }
+    catch(e){ console.error(e); showToast('Gagal menyimpan'); }
+  });
+  document.getElementById('er-delete-btn').addEventListener('click', ()=>{
+    askConfirm('Hapus catatan riwayat ini?', async ()=>{
+      try{ await deleteActivityDoc(editingRiwayatId); closeModal('modal-edit-riwayat'); showToast('Catatan dihapus'); }
+      catch(e){ console.error(e); showToast('Gagal menghapus'); }
+    });
+  });
+  document.getElementById('riwayat-open-btn').addEventListener('click', ()=>{ showScreen('riwayat'); renderRiwayat(); });
+
+  /* ============ EXPORT (CSV) ============ */
+  function csvEscape(v){
+    const s = (v==null ? '' : String(v));
+    if(/[",\n]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+    return s;
+  }
+  async function downloadCSV(filename, rows){
+    const content = rows.map(r=> r.map(csvEscape).join(',')).join('\r\n');
+    await offerDownload(filename, '\uFEFF'+content);
+  }
+  document.getElementById('open-export-btn').addEventListener('click', ()=>{ closeModal('modal-settings'); openModal('modal-export'); });
+  document.getElementById('export-units-btn').addEventListener('click', async ()=>{
+    const rows = [['ID Unit','Klien','Gedung','Lokasi','Jenis Unit','Model','Varian Oil','Status','Jumlah Komponen','Dibuat Oleh','Dibuat Pada']];
+    Object.keys(unitsCache).forEach(id=>{
+      const u = unitsCache[id];
+      const gd = gedungCache[u.gedungKode];
+      const {worst} = unitWorstStatus(u);
+      const statusTxt = worst==='danger' ? 'Lewat jatuh tempo' : worst==='warn' ? 'Segera' : 'Aman';
+      rows.push([id, (gd&&gd.klien)||'-', u.gedung, u.lantai, u.tipe, u.model||'-', u.oilVarian||'-', statusTxt, (u.components||[]).length, u.createdBy||'-', fmtDateTime(u.createdAt)]);
+    });
+    await downloadCSV('asobe-daftar-unit.csv', rows);
+  });
+  document.getElementById('export-activity-btn').addEventListener('click', async ()=>{
+    const rows = [['Waktu','Teknisi','ID Unit','Unit','Keterangan','Jumlah','Satuan','Catatan']];
+    activityCache.forEach(a=> rows.push([fmtDateTime(a.date), a.teknisi||'-', a.unitId||'-', a.unitLabel||'-', a.action||'-', a.qty!=null?a.qty:'', a.qtyUnit||'', a.note||'']));
+    await downloadCSV('asobe-riwayat-aktivitas.csv', rows);
+  });
+
+  /* ============ LAPORAN PERIODE (Excel) ============ */
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function dateOnlyLabel(d){ return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); }
+  function computePeriodRange(mode){
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth();
+    if(mode === '1'){
+      return { start: new Date(y,m,1,0,0,0), end: new Date(y,m,15,23,59,59) };
+    } else if(mode === '2'){
+      const lastDay = new Date(y,m+1,0).getDate();
+      return { start: new Date(y,m,16,0,0,0), end: new Date(y,m,lastDay,23,59,59) };
+    } else {
+      const s = document.getElementById('laporan-start-date').value;
+      const e = document.getElementById('laporan-end-date').value;
+      if(!s || !e) return null;
+      const start = new Date(s+'T00:00:00');
+      const end = new Date(e+'T23:59:59');
+      return { start, end };
+    }
+  }
+  let laporanMode = '1';
+  function refreshLaporanPreview(){
+    const r = computePeriodRange(laporanMode);
+    const el = document.getElementById('laporan-range-preview');
+    if(!r){ el.textContent = 'Pilih tanggal dulu.'; return; }
+    el.textContent = 'Rentang: '+dateOnlyLabel(r.start)+' — '+dateOnlyLabel(r.end);
+  }
+  document.getElementById('open-laporan-btn').addEventListener('click', ()=>{
+    laporanMode = '1';
+    document.querySelectorAll('#modal-laporan [data-periode]').forEach(c=>c.classList.toggle('active', c.dataset.periode==='1'));
+    document.getElementById('laporan-custom-dates').style.display = 'none';
+    refreshLaporanPreview();
+    openModal('modal-laporan');
+  });
+  document.querySelectorAll('#modal-laporan [data-periode]').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('#modal-laporan [data-periode]').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      laporanMode = chip.dataset.periode;
+      document.getElementById('laporan-custom-dates').style.display = laporanMode==='custom' ? 'block' : 'none';
+      refreshLaporanPreview();
+    });
+  });
+  document.getElementById('laporan-start-date').addEventListener('change', refreshLaporanPreview);
+  document.getElementById('laporan-end-date').addEventListener('change', refreshLaporanPreview);
+
+  document.getElementById('laporan-generate-btn').addEventListener('click', async ()=>{
+    const range = computePeriodRange(laporanMode);
+    if(!range){ showToast('Pilih tanggal dulu'); return; }
+    const g = gedungCache[currentGedungKode];
+    const unitIds = Object.keys(unitsCache).filter(id=>unitsCache[id].gedungKode===currentGedungKode);
+    if(unitIds.length === 0){ showToast('Belum ada unit di gedung ini'); return; }
+
+    const unitMeta = {};
+    unitIds.forEach(id=>{ const u = unitsCache[id]; unitMeta[id] = {lantai:u.lantai, tipe:u.tipe}; });
+
+    const groups = {};
+    unitIds.forEach(id=>{
+      const key = unitMeta[id].lantai+'|||'+unitMeta[id].tipe;
+      if(!groups[key]) groups[key] = { lantai:unitMeta[id].lantai, tipe:unitMeta[id].tipe, unitIds:new Set(), liter:0, pcs:0, aktivitas:0, teknisi:new Set() };
+      groups[key].unitIds.add(id);
+    });
+
+    activityCache.forEach(a=>{
+      if(!a.unitId || !unitMeta[a.unitId]) return;
+      const d = new Date(a.date);
+      if(d < range.start || d > range.end) return;
+      const key = unitMeta[a.unitId].lantai+'|||'+unitMeta[a.unitId].tipe;
+      const grp = groups[key];
+      if(!grp) return;
+      grp.aktivitas++;
+      if(a.teknisi) grp.teknisi.add(a.teknisi);
+      if(a.qty != null){
+        if(a.qtyUnit === 'Liter') grp.liter += a.qty;
+        else if(a.qtyUnit === 'Pcs') grp.pcs += a.qty;
+      }
+    });
+
+    const rows = [
+      ['Laporan Servis Washroom Hygiene — Asobe'],
+      ['Gedung: '+g.nama + (g.klien ? '  (Klien: '+g.klien+')' : '')],
+      ['Periode: '+dateOnlyLabel(range.start)+' — '+dateOnlyLabel(range.end)],
+      [],
+      ['No','Lantai','Jenis Unit','Jumlah Unit','Total Isi Ulang (Liter)','Total Komponen Diganti (Pcs)','Jumlah Aktivitas Tercatat','Teknisi']
+    ];
+    const sortedKeys = Object.keys(groups).sort((a,b)=> groups[a].lantai.localeCompare(groups[b].lantai) || groups[a].tipe.localeCompare(groups[b].tipe));
+    sortedKeys.forEach((key,i)=>{
+      const grp = groups[key];
+      rows.push([
+        i+1, grp.lantai, grp.tipe, grp.unitIds.size,
+        grp.liter>0 ? Math.round(grp.liter*100)/100 : 0,
+        grp.pcs>0 ? grp.pcs : 0,
+        grp.aktivitas,
+        Array.from(grp.teknisi).join(', ') || '-'
+      ]);
+    });
+    rows.push([]);
+    rows.push(['Dicetak otomatis dari Aplikasi Asobe Teknisi pada '+fmtDateTime(nowISO())]);
+
+    try{
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols'] = [{wch:4},{wch:14},{wch:20},{wch:10},{wch:16},{wch:16},{wch:14},{wch:24}];
+      ws['!merges'] = [
+        {s:{r:0,c:0},e:{r:0,c:7}},
+        {s:{r:1,c:0},e:{r:1,c:7}},
+        {s:{r:2,c:0},e:{r:2,c:7}}
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
+      const wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+      const blob = new Blob([wbout], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      const fname = 'Laporan-'+g.kode+'-'+range.start.toISOString().slice(0,10)+'_'+range.end.toISOString().slice(0,10)+'.xlsx';
+      const ok = await offerDownload(fname, blob);
+      if(ok) closeModal('modal-laporan');
+    }catch(e){ console.error(e); showToast('Gagal membuat laporan Excel'); }
+  });
+
+  /* ============ SETTINGS / PROFILE ============ */
+  document.getElementById('profile-btn').addEventListener('click', ()=>{ document.getElementById('input-profile-name').value = profile.name||''; openModal('modal-profile'); });
+  document.getElementById('save-profile-btn').addEventListener('click', ()=>{
+    const name = document.getElementById('input-profile-name').value.trim();
+    if(!name){ showToast('Nama tidak boleh kosong'); return; }
+    profile.name = name; saveProfile(profile); refreshProfileUI(); closeModal('modal-profile'); showToast('Profil disimpan');
+  });
+  function ensureProfile(){ if(!profile.name) openModal('modal-profile'); }
+  document.getElementById('settings-btn').addEventListener('click', ()=> openModal('modal-settings'));
+  function refreshSettingsUI(){
+    const t = localStorage.getItem('asobe_theme')||'auto', a = localStorage.getItem('asobe_accent')||'teal';
+    document.querySelectorAll('[data-theme-opt]').forEach(el=>el.classList.toggle('active', el.dataset.themeOpt===t));
+    document.querySelectorAll('[data-accent-opt]').forEach(el=>el.classList.toggle('active', el.dataset.accentOpt===a));
+  }
+  refreshSettingsUI();
+  document.querySelectorAll('[data-theme-opt]').forEach(el=> el.addEventListener('click', ()=>{ localStorage.setItem('asobe_theme', el.dataset.themeOpt); initTheme(); refreshSettingsUI(); }));
+  document.querySelectorAll('[data-accent-opt]').forEach(el=> el.addEventListener('click', ()=>{ localStorage.setItem('asobe_accent', el.dataset.accentOpt); initTheme(); refreshSettingsUI(); }));
+
+  /* ============ GEDUNG CRUD ============ */
+  let editingGedungKode = null;
+  document.getElementById('fab-add-gedung').addEventListener('click', ()=>{
+    editingGedungKode = null;
+    document.getElementById('gedung-modal-title').textContent = 'Tambah Gedung';
+    document.getElementById('input-gedung-nama').value = '';
+    document.getElementById('input-gedung-klien').value = '';
+    document.getElementById('input-gedung-kode').value = '';
+    document.getElementById('gedung-kode-field').style.display = 'block';
+    document.getElementById('gedung-kode-hint').style.display = 'block';
+    openModal('modal-gedung');
+  });
+  document.getElementById('save-gedung-btn').addEventListener('click', async ()=>{
+    const nama = document.getElementById('input-gedung-nama').value.trim();
+    const klien = document.getElementById('input-gedung-klien').value.trim();
+    if(!nama){ showToast('Isi nama gedung dulu'); return; }
+    try{
+      if(editingGedungKode){
+        await updateGedungDoc(editingGedungKode, {nama, klien: klien||null});
+        showToast('Gedung diperbarui');
+      } else {
+        let kode = document.getElementById('input-gedung-kode').value.trim().toUpperCase();
+        if(!kode){ showToast('Isi kode gedung dulu'); return; }
+        if(gedungCache[kode]){ showToast('Kode ini sudah dipakai'); return; }
+        await saveGedungDoc(kode, {nama, klien: klien||null, kode, createdAt: nowISO(), createdBy: profile.name||'-'});
+        showToast('Gedung ditambahkan');
+      }
+      closeModal('modal-gedung');
+    }catch(e){ console.error(e); showToast('Gagal menyimpan'); }
+  });
+
+  let currentGedungKode = null;
+  function openGedung(kode){ currentGedungKode = kode; document.getElementById('gedung-search-input').value=''; showScreen('gedung'); renderGedungPage(); }
+  function renderGedungPage(){
+    const g = gedungCache[currentGedungKode];
+    if(!g){ showScreen('beranda'); return; }
+    document.getElementById('gedung-page-title').textContent = g.nama;
+    const klienEl = document.getElementById('gedung-page-klien');
+    if(g.klien){ klienEl.style.display='block'; klienEl.textContent = 'Klien: '+g.klien; } else { klienEl.style.display='none'; }
+    const list = document.getElementById('unit-list-in-gedung');
+    list.innerHTML = '';
+    const query = (document.getElementById('gedung-search-input').value||'').trim().toLowerCase();
+    let ids = Object.keys(unitsCache).filter(id=>unitsCache[id].gedungKode===currentGedungKode);
+    if(query){
+      ids = ids.filter(id=>{
+        const u = unitsCache[id];
+        return id.toLowerCase().includes(query) || (u.tipe||'').toLowerCase().includes(query) || (u.lantai||'').toLowerCase().includes(query) || (u.model||'').toLowerCase().includes(query);
+      });
+    }
+    if(ids.length === 0){
+      list.innerHTML = emptyStateHTML(query ? 'Tidak ada unit yang cocok dengan "'+escapeHTML(query)+'".' : 'Belum ada unit di gedung ini.\nKetuk "+ Tambah Unit" di bawah.');
+      return;
+    }
+    ids.forEach(id=>{
+      const u = unitsCache[id];
+      const {worst} = unitWorstStatus(u);
+      const badgeText = worst==='danger' ? 'Lewat jatuh tempo' : worst==='warn' ? 'Segera' : 'Aman';
+      const card = document.createElement('div');
+      card.className = 'unit-card';
+      card.innerHTML = `
+        <div class="unit-card-top"><span class="unit-card-id">${id}</span><span class="pick-badge ${worst}">${badgeText}</span></div>
+        <div class="unit-card-name">${escapeHTML(unitLabel(u))}</div>
+        <div class="unit-card-loc">${escapeHTML(u.lantai)}</div>
+      `;
+      card.addEventListener('click', ()=>{ unitBackTarget = 'gedung'; openUnit(id); });
+      list.appendChild(card);
+    });
+  }
+  document.getElementById('gedung-search-input').addEventListener('input', renderGedungPage);
+  document.getElementById('home-btn-gedung').addEventListener('click', ()=>{ showScreen('beranda'); renderBeranda(); });
+  document.getElementById('home-btn-unit').addEventListener('click', ()=>{ showScreen('beranda'); renderBeranda(); });
+  document.getElementById('edit-gedung-btn').addEventListener('click', ()=>{
+    editingGedungKode = currentGedungKode;
+    const g = gedungCache[currentGedungKode];
+    document.getElementById('gedung-modal-title').textContent = 'Edit Gedung';
+    document.getElementById('input-gedung-nama').value = g.nama;
+    document.getElementById('input-gedung-klien').value = g.klien || '';
+    document.getElementById('gedung-kode-field').style.display = 'none';
+    document.getElementById('gedung-kode-hint').style.display = 'none';
+    openModal('modal-gedung');
+  });
+  document.getElementById('delete-gedung-btn').addEventListener('click', async ()=>{
+    const unitCount = Object.keys(unitsCache).filter(id=>unitsCache[id].gedungKode===currentGedungKode).length;
+    if(unitCount > 0){ showToast('Masih ada '+unitCount+' unit di gedung ini, hapus unitnya dulu'); return; }
+    askConfirm('Hapus gedung "'+gedungCache[currentGedungKode].nama+'"?', async ()=>{
+      try{ await deleteGedungDoc(currentGedungKode); showScreen('beranda'); showToast('Gedung dihapus'); }
+      catch(e){ console.error(e); showToast('Gagal menghapus'); }
+    });
+  });
+
+  /* ============ WIZARD TAMBAH UNIT ============ */
+  let wizardStep = 1;
+  const WIZARD_TOTAL = 6;
+  let wizardData = { components: [] };
+  const defaultCompSets = {
+    'ladybin': [{name:'Plastik/Kantong', type:'Consumable', intervalDays:14}],
+    'handsoap': [{name:'Isi Sabun', type:'Consumable', intervalDays:14},{name:'Nozzle Pompa', type:'Part', intervalDays:90},{name:'Baterai', type:'Part', intervalDays:60}],
+    'scenting': [{name:'Isi Oil', type:'Consumable', intervalDays:14},{name:'Baterai', type:'Part', intervalDays:60}],
+    'air freshener': [{name:'Isi Oil', type:'Consumable', intervalDays:14},{name:'Baterai', type:'Part', intervalDays:60}],
+    'aerosol': [{name:'Isi Oil', type:'Consumable', intervalDays:14},{name:'Baterai', type:'Part', intervalDays:60}],
+    'urinoil': [{name:'Cairan Sanitasi', type:'Consumable', intervalDays:14}]
+  };
+
+  function populateDatalist(elId, values){
+    const el = document.getElementById(elId); el.innerHTML = '';
+    Array.from(new Set(values)).forEach(v=>{ if(!v) return; const opt=document.createElement('option'); opt.value=v; el.appendChild(opt); });
+  }
+  function refreshSuggestions(){
+    const tipes = Object.values(unitsCache).map(u=>u.tipe);
+    populateDatalist('tipe-suggestions', ['Scenting','Aerosol','Ladybin','Handsoap','Urinoil','Air Freshener'].concat(tipes));
+    populateDatalist('model-suggestions', Object.values(unitsCache).map(u=>u.model).filter(Boolean));
+    populateDatalist('oil-suggestions', ['Lemon Gress','Teh Kraton','Libre','Amber Zest'].concat(Object.values(unitsCache).map(u=>u.oilVarian).filter(Boolean)));
+  }
+
+  document.getElementById('fab-add-unit').addEventListener('click', ()=>{
+    wizardStep = 1;
+    wizardData = { components: [] };
+    document.getElementById('w-lantai-nama').value = '';
+    document.getElementById('w-lantai-kode').value = '';
+    document.getElementById('w-tipe').value = '';
+    document.getElementById('w-model').value = '';
+    document.getElementById('w-oil').value = '';
+    document.getElementById('w-oil-no').classList.add('active');
+    document.getElementById('w-oil-yes').classList.remove('active');
+    document.getElementById('w-oil-field').style.display = 'none';
+    wizardData.oilEnabled = false;
+    refreshSuggestions();
+    renderWizardStep();
+    showScreen('wizard');
+  });
+  document.getElementById('wizard-back-btn').addEventListener('click', ()=> showScreen('gedung'));
+
+  document.getElementById('w-oil-yes').addEventListener('click', ()=>{ wizardData.oilEnabled=true; document.getElementById('w-oil-yes').classList.add('active'); document.getElementById('w-oil-no').classList.remove('active'); document.getElementById('w-oil-field').style.display='block'; });
+  document.getElementById('w-oil-no').addEventListener('click', ()=>{ wizardData.oilEnabled=false; document.getElementById('w-oil-no').classList.add('active'); document.getElementById('w-oil-yes').classList.remove('active'); document.getElementById('w-oil-field').style.display='none'; });
+
+  document.querySelectorAll('[data-newcomp-type]').forEach(chip=>{
+    chip.addEventListener('click', ()=>{ document.querySelectorAll('[data-newcomp-type]').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); });
+  });
+  document.getElementById('w-new-comp-add-btn').addEventListener('click', ()=>{
+    const name = document.getElementById('w-new-comp-name').value.trim();
+    const type = document.querySelector('[data-newcomp-type].active').dataset.newcompType;
+    const interval = parseInt(document.getElementById('w-new-comp-interval').value)||14;
+    if(!name){ showToast('Isi nama komponen dulu'); return; }
+    wizardData.components.push({id:uid(), name, type, intervalDays:interval});
+    document.getElementById('w-new-comp-name').value='';
+    renderWizardFinalComps();
+  });
+  function renderWizardFinalComps(){
+    const el = document.getElementById('wizard-final-comps');
+    el.innerHTML = '';
+    if(wizardData.components.length===0){ el.innerHTML = '<div class="field-hint">Belum ada komponen dipilih.</div>'; return; }
+    wizardData.components.forEach(c=>{
+      const row = document.createElement('div');
+      row.className='mini-comp-row';
+      row.innerHTML = `<div class="name">${escapeHTML(c.name)}</div><div class="type-tag">${typeLabel(c.type)} · ${c.intervalDays}h</div><button class="rm">×</button>`;
+      row.querySelector('.rm').addEventListener('click', ()=>{ wizardData.components = wizardData.components.filter(x=>x.id!==c.id); renderWizardFinalComps(); renderWizardToggleComps(); });
+      el.appendChild(row);
+    });
+  }
+  function renderWizardToggleComps(){
+    const tipeKey = document.getElementById('w-tipe').value.trim().toLowerCase();
+    const defaults = defaultCompSets[tipeKey] || [];
+    const container = document.getElementById('wizard-toggle-comps');
+    container.innerHTML = '';
+    if(defaults.length === 0){
+      container.innerHTML = '<div class="field-hint">Belum ada saran otomatis untuk jenis unit ini — tambahkan manual di bawah.</div>';
+      return;
+    }
+    defaults.forEach(d=>{
+      const existing = wizardData.components.find(c=>c.name===d.name);
+      const card = document.createElement('div');
+      card.className = 'toggle-comp-card' + (existing ? ' on' : '');
+      card.innerHTML = `
+        <div class="toggle-comp-top">
+          <div><div class="toggle-comp-name">${d.name}</div><div class="toggle-comp-sub">${typeLabel(d.type)}</div></div>
+          <div class="toggle-switch ${existing?'on':''}"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="toggle-comp-interval" style="display:${existing?'flex':'none'};">
+          <span>Diservis tiap</span><input type="number" value="${existing?existing.intervalDays:d.intervalDays}" min="1"><span>hari</span>
+        </div>
+      `;
+      const sw = card.querySelector('.toggle-switch');
+      const intervalRow = card.querySelector('.toggle-comp-interval');
+      const intervalInput = card.querySelector('input');
+      sw.addEventListener('click', ()=>{
+        const isOn = sw.classList.toggle('on');
+        card.classList.toggle('on', isOn);
+        intervalRow.style.display = isOn ? 'flex' : 'none';
+        if(isOn){
+          if(!wizardData.components.find(c=>c.name===d.name)) wizardData.components.push({id:uid(), name:d.name, type:d.type, intervalDays: parseInt(intervalInput.value)||d.intervalDays});
+        } else {
+          wizardData.components = wizardData.components.filter(c=>c.name!==d.name);
+        }
+        renderWizardFinalComps();
+      });
+      intervalInput.addEventListener('input', ()=>{
+        const c = wizardData.components.find(c=>c.name===d.name);
+        if(c){ c.intervalDays = parseInt(intervalInput.value)||d.intervalDays; renderWizardFinalComps(); }
+      });
+      container.appendChild(card);
+    });
+  }
+
+  function updateWizardIdPreview(){
+    const gedungKode = currentGedungKode;
+    const lantaiKode = document.getElementById('w-lantai-kode').value.trim().toUpperCase();
+    const tipeNama = document.getElementById('w-tipe').value.trim();
+    if(!lantaiKode || !tipeNama){ document.getElementById('w-id-preview').textContent = '—'; return; }
+    const tipeKode = deriveTipeKode(tipeNama);
+    const existingCount = Object.keys(unitsCache).filter(id=>unitsCache[id].gedungKode===gedungKode && unitsCache[id].tipeKode===tipeKode).length;
+    const nomorStr = String(existingCount+1).padStart(3,'0');
+    document.getElementById('w-id-preview').textContent = `${gedungKode}-${lantaiKode}-${tipeKode}-${nomorStr}`;
+  }
+
+  function renderWizardStep(){
+    for(let i=1;i<=WIZARD_TOTAL;i++) document.getElementById('wstep-'+i).style.display = (i===wizardStep) ? 'block' : 'none';
+    const prog = document.getElementById('wizard-progress');
+    prog.innerHTML = '';
+    for(let i=1;i<=WIZARD_TOTAL;i++){
+      const dot = document.createElement('div');
+      dot.className = 'wizard-dot' + (i<wizardStep ? ' done' : i===wizardStep ? ' current' : '');
+      prog.appendChild(dot);
+    }
+    document.getElementById('wizard-prev-btn').style.display = wizardStep===1 ? 'none' : 'block';
+    document.getElementById('wizard-next-btn').textContent = wizardStep===WIZARD_TOTAL ? 'Simpan Unit' : 'Lanjut ›';
+
+    if(wizardStep===5) renderWizardToggleComps();
+    if(wizardStep===5) renderWizardFinalComps();
+    if(wizardStep===6) fillWizardSummary();
+  }
+  function fillWizardSummary(){
+    const g = gedungCache[currentGedungKode];
+    document.getElementById('w-sum-gedung').textContent = g ? g.nama : '-';
+    document.getElementById('w-sum-lokasi').textContent = document.getElementById('w-lantai-nama').value.trim();
+    document.getElementById('w-sum-tipe').textContent = document.getElementById('w-tipe').value.trim();
+    document.getElementById('w-sum-model').textContent = document.getElementById('w-model').value.trim() || '-';
+    document.getElementById('w-sum-oil').textContent = wizardData.oilEnabled ? (document.getElementById('w-oil').value.trim()||'-') : 'Tidak pakai';
+    document.getElementById('w-sum-comps').textContent = wizardData.components.length + ' komponen';
+    updateWizardIdPreview();
+  }
+
+  document.getElementById('wizard-prev-btn').addEventListener('click', ()=>{ if(wizardStep>1){ wizardStep--; renderWizardStep(); } });
+  document.getElementById('wizard-next-btn').addEventListener('click', async ()=>{
+    if(wizardStep===1){
+      if(!document.getElementById('w-lantai-nama').value.trim() || !document.getElementById('w-lantai-kode').value.trim()){ showToast('Isi nama & kode lokasi dulu'); return; }
+    }
+    if(wizardStep===2){
+      if(!document.getElementById('w-tipe').value.trim()){ showToast('Isi jenis unit dulu'); return; }
+    }
+    if(wizardStep===4){
+      if(wizardData.oilEnabled && !document.getElementById('w-oil').value.trim()){ showToast('Isi varian oil atau matikan opsi oil'); return; }
+    }
+    if(wizardStep===WIZARD_TOTAL){
+      ensureProfile();
+      if(!profile.name){ showToast('Isi nama profil dulu'); return; }
+      if(wizardData.components.length===0){ showToast('Tambahkan minimal 1 komponen'); return; }
+      const gedungKode = currentGedungKode;
+      const gedungNama = gedungCache[gedungKode].nama;
+      const lantaiNama = document.getElementById('w-lantai-nama').value.trim();
+      const lantaiKode = document.getElementById('w-lantai-kode').value.trim().toUpperCase();
+      const tipeNama = document.getElementById('w-tipe').value.trim();
+      const model = document.getElementById('w-model').value.trim();
+      const oilVal = wizardData.oilEnabled ? document.getElementById('w-oil').value.trim() : null;
+      const tipeKode = deriveTipeKode(tipeNama);
+      const existingCount = Object.keys(unitsCache).filter(id=>unitsCache[id].gedungKode===gedungKode && unitsCache[id].tipeKode===tipeKode).length;
+      const nomorStr = String(existingCount+1).padStart(3,'0');
+      const unitId = `${gedungKode}-${lantaiKode}-${tipeKode}-${nomorStr}`;
+      if(unitsCache[unitId]){ showToast('ID ini sudah dipakai, coba lagi'); return; }
+      const nowIso = nowISO();
+      const unitData = {
+        gedung: gedungNama, gedungKode, lantai: lantaiNama, lantaiKode, tipe: tipeNama, tipeKode,
+        model: model||null, oilVarian: oilVal, createdAt: nowIso, createdBy: profile.name,
+        components: wizardData.components.map(c=>({ id:c.id, name:c.name, type:c.type, intervalDays:c.intervalDays, lastDate: nowIso, lastBy: profile.name, history:[{date:nowIso, teknisi:profile.name, note:'Unit didaftarkan'}] })),
+        damageReports: []
+      };
+      try{
+        await saveUnit(unitId, unitData);
+        await logActivity({teknisi:profile.name, unitId, unitLabel: unitLabel(unitData), action:'Unit baru didaftarkan'});
+        showToast('Unit '+unitId+' berhasil ditambahkan');
+        showScreen('gedung'); renderGedungPage();
+      }catch(e){ console.error(e); showToast('Gagal menyimpan unit'); }
+      return;
+    }
+    wizardStep++;
+    renderWizardStep();
+  });
+
+  /* ============ UNIT DETAIL ============ */
+  let currentUnitId = null;
+  let unitBackTarget = 'gedung';
+  let activeSeg = 'komponen';
+
+  function openUnit(id){ currentUnitId = id; showScreen('unit'); activeSeg='komponen'; document.querySelectorAll('.segmented button').forEach(b=>b.classList.toggle('active', b.dataset.seg==='komponen')); document.getElementById('seg-komponen').style.display='block'; document.getElementById('seg-kerusakan').style.display='none'; renderUnitPage(); }
+  document.getElementById('unit-back-btn').addEventListener('click', ()=>{
+    if(unitBackTarget==='gedung'){ showScreen('gedung'); renderGedungPage(); }
+    else { showScreen(unitBackTarget); if(unitBackTarget==='perlu') renderPerlu(); if(unitBackTarget==='notifikasi') renderNotifikasi(); if(unitBackTarget==='riwayat') renderRiwayat(); }
+  });
+  document.querySelectorAll('.segmented button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.segmented button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      activeSeg = btn.dataset.seg;
+      document.getElementById('seg-komponen').style.display = activeSeg==='komponen' ? 'block' : 'none';
+      document.getElementById('seg-kerusakan').style.display = activeSeg==='kerusakan' ? 'block' : 'none';
+    });
+  });
+
+  function renderUnitPage(){
+    const u = unitsCache[currentUnitId];
+    if(!u){ showScreen('beranda'); return; }
+    document.getElementById('unit-page-title').textContent = unitLabel(u);
+    document.getElementById('d-addr').textContent = u.gedung + ', ' + u.lantai;
+    document.getElementById('d-id').textContent = currentUnitId;
+    document.getElementById('d-type').textContent = u.tipe;
+    document.getElementById('d-model').textContent = u.model || '-';
+    const showOil = !!u.oilVarian;
+    document.getElementById('d-oil-row').style.display = showOil ? 'flex' : 'none';
+    document.getElementById('oil-swap-btn').style.display = showOil ? 'block' : 'none';
+    document.getElementById('d-oil').textContent = u.oilVarian || '-';
+
+    const thumb = document.getElementById('qr-thumb-box');
+    renderQRInto(thumb, currentUnitId, 60);
+
+    renderComponents();
+    renderDamage();
+  }
+  let currentQrDataUrl = null;
+  document.getElementById('qr-thumb-row').addEventListener('click', ()=>{
+    document.getElementById('qr-modal-title').textContent = 'QR — '+currentUnitId;
+    const wrap = document.getElementById('qr-canvas-wrap-big');
+    currentQrDataUrl = renderQRInto(wrap, currentUnitId, 220);
+    openModal('modal-qr');
+  });
+  document.getElementById('qr-download-btn').addEventListener('click', async ()=>{
+    if(!currentQrDataUrl){ showToast('QR belum siap, coba lagi'); return; }
+    try{
+      const res = await fetch(currentQrDataUrl);
+      const blob = await res.blob();
+      await offerDownload(currentUnitId+'.gif', blob);
+    }catch(e){ console.error(e); showToast('Gagal menyiapkan file QR'); }
+  });
+
+  function renderComponents(){
+    const u = unitsCache[currentUnitId];
+    const container = document.getElementById('components-container');
+    container.innerHTML = '';
+    (u.components||[]).forEach((c, idx)=>{
+      const s = compStatus(c);
+      const block = document.createElement('div');
+      block.className = 'comp-block';
+      const hist = (c.history||[]).slice(0,10);
+      block.innerHTML = `
+        <div class="comp-head">
+          <div class="comp-name-row">
+            <div><div class="comp-name">${escapeHTML(c.name)}</div><div class="comp-type">${typeLabel(c.type)} · tiap ${c.intervalDays} hari</div></div>
+          </div>
+          <div class="comp-icon-row">
+            <span class="comp-status ${s.cls}">${s.label}</span>
+          </div>
+        </div>
+        <div class="comp-meta">
+          <div class="comp-meta-item"><div class="l">Terakhir</div><div class="v">${fmtDateTime(c.lastDate)}</div></div>
+          <div class="comp-meta-item"><div class="l">Jatuh tempo</div><div class="v">${fmt(s.due.toISOString())}</div></div>
+        </div>
+        <div class="comp-actions">
+          <button class="comp-btn primary" data-comp-idx="${idx}" data-act="do">${actionLabel(u,c)} sekarang</button>
+          <button class="comp-btn" data-comp-idx="${idx}" data-act="edit">Edit</button>
+          <button class="comp-btn" data-comp-idx="${idx}" data-act="hist">Riwayat</button>
+        </div>
+        <div class="hist-list" id="hist-${idx}">
+          ${hist.map(h=>`<div class="hist-entry"><span class="d">${fmtDateTime(h.date)}</span><span>${h.qty!=null ? '<b>'+h.qty+' '+h.qtyUnit+'</b> · ' : ''}${escapeHTML(h.note||'')} — ${escapeHTML(h.teknisi||'')}</span></div>`).join('') || '<div class="hist-entry">Belum ada riwayat</div>'}
+        </div>
+      `;
+      container.appendChild(block);
+    });
+    container.querySelectorAll('[data-act="do"]').forEach(btn=> btn.addEventListener('click', ()=> openCompActionModal(parseInt(btn.dataset.compIdx))));
+    container.querySelectorAll('[data-act="edit"]').forEach(btn=> btn.addEventListener('click', ()=> openEditComponent(parseInt(btn.dataset.compIdx))));
+    container.querySelectorAll('[data-act="hist"]').forEach(btn=> btn.addEventListener('click', ()=> document.getElementById('hist-'+btn.dataset.compIdx).classList.toggle('shown')));
+  }
+
+  let pendingCompIdx = null;
+  function qtyUnitFor(unit, comp){
+    const isLadybinBag = (unit.tipe||'').toLowerCase()==='ladybin' && comp.type==='Consumable';
+    return (comp.type === 'Consumable' && !isLadybinBag) ? 'Liter' : 'Pcs';
+  }
+  function openCompActionModal(idx){
+    pendingCompIdx = idx;
+    const u = unitsCache[currentUnitId], c = u.components[idx];
+    document.getElementById('comp-action-title').textContent = actionLabel(u,c) + ' — ' + c.name;
+    const unit = qtyUnitFor(u, c);
+    document.getElementById('comp-action-qty-label').textContent = 'Jumlah '+(c.type==='Consumable'?'diisi':'diganti')+' ('+unit+', opsional)';
+    document.getElementById('comp-action-qty').step = unit==='Liter' ? '0.1' : '1';
+    document.getElementById('comp-action-qty').value = '';
+    document.getElementById('comp-action-note').value = '';
+    document.getElementById('comp-action-datetime').value = nowLocalInputValue();
+    openModal('modal-comp-action');
+  }
+  document.getElementById('comp-action-save-btn').addEventListener('click', async ()=>{
+    ensureProfile(); if(!profile.name){ showToast('Isi nama profil dulu'); return; }
+    const u = unitsCache[currentUnitId], c = u.components[pendingCompIdx];
+    const note = document.getElementById('comp-action-note').value.trim() || (actionLabel(u,c)+' rutin');
+    const whenISO = localInputToISO(document.getElementById('comp-action-datetime').value);
+    const qtyRaw = document.getElementById('comp-action-qty').value;
+    const qty = qtyRaw !== '' ? parseFloat(qtyRaw) : null;
+    const qtyUnit = qtyUnitFor(u, c);
+    const newComponents = u.components.map((comp,i)=>{
+      if(i!==pendingCompIdx) return comp;
+      const newHist = [{date:whenISO, teknisi:profile.name, note, qty, qtyUnit}].concat(comp.history||[]).slice(0,20);
+      newHist.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      return Object.assign({}, comp, {lastDate: newHist[0].date, lastBy: profile.name, history: newHist});
+    });
+    const qtyNote = (qty!=null) ? (' ('+qty+' '+qtyUnit+')') : '';
+    try{
+      await updateUnitDoc(currentUnitId, {components: newComponents});
+      await logActivity({teknisi:profile.name, unitId:currentUnitId, unitLabel:unitLabel(u), action: actionLabel(u,c)+' — '+c.name+qtyNote, note, qty, qtyUnit}, whenISO);
+      closeModal('modal-comp-action'); showToast(c.name+' berhasil dicatat'); renderUnitPage();
+    }catch(e){ console.error(e); showToast('Gagal menyimpan'); }
+  });
+
+  let pendingEditCompIdx = null;
+  document.getElementById('btn-add-component').addEventListener('click', ()=>{
+    pendingEditCompIdx = null;
+    document.getElementById('add-comp-modal-title').textContent = 'Tambah Komponen';
+    document.getElementById('add-comp-name').value='';
+    document.getElementById('add-comp-interval').value='14';
+    document.getElementById('delete-comp-btn').style.display = 'none';
+    document.querySelectorAll('#modal-add-comp .chip-opt').forEach(c=>c.classList.remove('active'));
+    document.querySelector('#modal-add-comp [data-comp-type="Consumable"]').classList.add('active');
+    openModal('modal-add-comp');
+  });
+  function openEditComponent(idx){
+    pendingEditCompIdx = idx;
+    const c = unitsCache[currentUnitId].components[idx];
+    document.getElementById('add-comp-modal-title').textContent = 'Edit Komponen';
+    document.getElementById('add-comp-name').value = c.name;
+    document.getElementById('add-comp-interval').value = c.intervalDays;
+    document.getElementById('delete-comp-btn').style.display = 'block';
+    document.querySelectorAll('#modal-add-comp .chip-opt').forEach(ch=>ch.classList.toggle('active', ch.dataset.compType===c.type));
+    openModal('modal-add-comp');
+  }
+  document.querySelectorAll('#modal-add-comp .chip-opt').forEach(chip=> chip.addEventListener('click', ()=>{ document.querySelectorAll('#modal-add-comp .chip-opt').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); }));
+  document.getElementById('add-comp-save-btn').addEventListener('click', async ()=>{
+    ensureProfile(); if(!profile.name){ showToast('Isi nama profil dulu'); return; }
+    const name = document.getElementById('add-comp-name').value.trim();
+    const type = document.querySelector('#modal-add-comp .chip-opt.active').dataset.compType;
+    const interval = parseInt(document.getElementById('add-comp-interval').value)||14;
+    if(!name){ showToast('Isi nama komponen dulu'); return; }
+    const u = unitsCache[currentUnitId];
+    let newComponents;
+    if(pendingEditCompIdx===null){
+      const nowIso = nowISO();
+      const newComp = {id:uid(), name, type, intervalDays:interval, lastDate:nowIso, lastBy:profile.name, history:[{date:nowIso, teknisi:profile.name, note:'Komponen baru ditambahkan'}]};
+      newComponents = (u.components||[]).concat([newComp]);
+    } else {
+      newComponents = u.components.map((c,i)=> i===pendingEditCompIdx ? Object.assign({}, c, {name, type, intervalDays:interval}) : c);
+    }
+    try{
+      await updateUnitDoc(currentUnitId, {components:newComponents});
+      await logActivity({teknisi:profile.name, unitId:currentUnitId, unitLabel:unitLabel(u), action: (pendingEditCompIdx===null?'Tambah komponen — ':'Edit komponen — ')+name});
+      closeModal('modal-add-comp'); showToast('Komponen disimpan'); renderUnitPage();
+    }catch(e){ console.error(e); showToast('Gagal menyimpan'); }
+  });
+  document.getElementById('delete-comp-btn').addEventListener('click', ()=>{
+    askConfirm('Hapus komponen ini?', async ()=>{
+      const u = unitsCache[currentUnitId];
+      const removed = u.components[pendingEditCompIdx];
+      const newComponents = u.components.filter((c,i)=>i!==pendingEditCompIdx);
+      try{
+        await updateUnitDoc(currentUnitId, {components:newComponents});
+        await logActivity({teknisi:profile.name||'-', unitId:currentUnitId, unitLabel:unitLabel(u), action:'Hapus komponen — '+removed.name});
+        closeModal('modal-add-comp'); showToast('Komponen dihapus'); renderUnitPage();
+      }catch(e){ console.error(e); showToast('Gagal menghapus'); }
+    });
+  });
+
+  /* oil swap */
+  document.getElementById('oil-swap-btn').addEventListener('click', ()=>{
+    document.getElementById('oil-swap-input').value = unitsCache[currentUnitId].oilVarian || '';
+    document.getElementById('oil-swap-datetime').value = nowLocalInputValue();
+    openModal('modal-oil-swap');
+  });
+  document.getElementById('oil-swap-save-btn').addEventListener('click', async ()=>{
+    ensureProfile(); if(!profile.name){ showToast('Isi nama profil dulu'); return; }
+    const oil = document.getElementById('oil-swap-input').value.trim();
+    if(!oil){ showToast('Isi varian oil dulu'); return; }
+    const whenISO = localInputToISO(document.getElementById('oil-swap-datetime').value);
+    const u = unitsCache[currentUnitId];
+    try{
+      await updateUnitDoc(currentUnitId, {oilVarian: oil});
+      await logActivity({teknisi:profile.name, unitId:currentUnitId, unitLabel:unitLabel(u), action:'Ganti varian oil', note:'Ke '+oil}, whenISO);
+      closeModal('modal-oil-swap'); showToast('Varian oil diganti'); renderUnitPage();
+    }catch(e){ console.error(e); showToast('Gagal menyimpan'); }
+  });
+
+  /* damage reports CRUD */
+  function renderDamage(){
+    const u = unitsCache[currentUnitId];
+    const el = document.getElementById('damage-list');
+    el.innerHTML = '';
+    const reports = (u.damageReports||[]);
+    if(reports.length === 0){ el.innerHTML = emptyStateHTML('Belum ada laporan kerusakan.'); return; }
+    reports.forEach((r,idx)=>{
+      const div = document.createElement('div');
+      div.className = 'damage-entry';
+      div.innerHTML = `<div>${escapeHTML(r.note)}<div class="meta">${escapeHTML(r.teknisi)} · ${fmtDateTime(r.date)}</div></div>`;
+      div.addEventListener('click', ()=> openEditDamage(idx));
+      el.appendChild(div);
+    });
+  }
+  let pendingDamageIdx = null;
+  document.getElementById('btn-open-damage').addEventListener('click', ()=>{
+    pendingDamageIdx = null;
+    document.getElementById('damage-modal-title').textContent = 'Laporkan Kerusakan';
+    document.getElementById('damage-input').value = '';
+    document.getElementById('damage-datetime').value = nowLocalInputValue();
+    document.getElementById('delete-damage-btn').style.display = 'none';
+    openModal('modal-damage');
+  });
+  function openEditDamage(idx){
+    pendingDamageIdx = idx;
+    const r = unitsCache[currentUnitId].damageReports[idx];
+    document.getElementById('damage-modal-title').textContent = 'Edit Laporan Kerusakan';
+    document.getElementById('damage-input').value = r.note;
+    document.getElementById('damage-datetime').value = isoToLocalInputValue(r.date);
+    document.getElementById('delete-damage-btn').style.display = 'block';
+    openModal('modal-damage');
+  }
+  document.getElementById('damage-save-btn').addEventListener('click', async ()=>{
+    ensureProfile(); if(!profile.name){ showToast('Isi nama profil dulu'); return; }
+    const note = document.getElementById('damage-input').value.trim();
+    if(!note){ showToast('Tulis catatan kerusakan dulu'); return; }
+    const whenISO = localInputToISO(document.getElementById('damage-datetime').value);
+    const u = unitsCache[currentUnitId];
+    let newReports;
+    if(pendingDamageIdx===null){
+      newReports = [{date:whenISO, teknisi:profile.name, note}].concat(u.damageReports||[]);
+    } else {
+      newReports = u.damageReports.map((r,i)=> i===pendingDamageIdx ? {date:whenISO, teknisi:profile.name, note} : r);
+    }
+    newReports.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    try{
+      await updateUnitDoc(currentUnitId, {damageReports:newReports});
+      await logActivity({teknisi:profile.name, unitId:currentUnitId, unitLabel:unitLabel(u), action:(pendingDamageIdx===null?'Lapor kerusakan':'Edit laporan kerusakan')+' wadah/tutup', note}, whenISO);
+      closeModal('modal-damage'); document.getElementById('damage-input').value=''; showToast('Tersimpan'); renderUnitPage();
+    }catch(e){ console.error(e); showToast('Gagal menyimpan'); }
+  });
+  document.getElementById('delete-damage-btn').addEventListener('click', ()=>{
+    askConfirm('Hapus laporan kerusakan ini?', async ()=>{
+      const u = unitsCache[currentUnitId];
+      const newReports = u.damageReports.filter((r,i)=>i!==pendingDamageIdx);
+      try{ await updateUnitDoc(currentUnitId, {damageReports:newReports}); closeModal('modal-damage'); showToast('Laporan dihapus'); renderUnitPage(); }
+      catch(e){ console.error(e); showToast('Gagal menghapus'); }
+    });
+  });
+
+  /* edit / delete unit */
+  document.getElementById('edit-unit-btn').addEventListener('click', ()=>{
+    const u = unitsCache[currentUnitId];
+    document.getElementById('eu-id-display').textContent = currentUnitId;
+    document.getElementById('eu-lantai-nama').value = u.lantai;
+    document.getElementById('eu-model').value = u.model || '';
+    openModal('modal-edit-unit');
+  });
+  document.getElementById('save-edit-unit-btn').addEventListener('click', async ()=>{
+    const lantai = document.getElementById('eu-lantai-nama').value.trim();
+    const model = document.getElementById('eu-model').value.trim();
+    if(!lantai){ showToast('Nama lokasi tidak boleh kosong'); return; }
+    try{ await updateUnitDoc(currentUnitId, {lantai, model: model||null}); closeModal('modal-edit-unit'); showToast('Unit diperbarui'); renderUnitPage(); }
+    catch(e){ console.error(e); showToast('Gagal menyimpan'); }
+  });
+  document.getElementById('delete-unit-btn').addEventListener('click', ()=>{
+    askConfirm('Hapus unit '+currentUnitId+'? Tindakan ini tidak bisa dibatalkan.', async ()=>{
+      try{ await deleteUnitDoc(currentUnitId); showToast('Unit dihapus'); showScreen(unitBackTarget==='gedung'?'gedung':'beranda'); if(unitBackTarget==='gedung') renderGedungPage(); }
+      catch(e){ console.error(e); showToast('Gagal menghapus'); }
+    });
+  });
+
+  /* ============ QR SCAN + MANUAL ============ */
+  let scanStream = null, scanRAF = null;
+  document.getElementById('scan-open-btn').addEventListener('click', startScan);
+  document.getElementById('scan-close-btn').addEventListener('click', stopScan);
+  document.getElementById('scan-manual-btn').addEventListener('click', ()=>{
+    const val = document.getElementById('scan-manual-input').value.trim().toUpperCase();
+    if(!val){ showToast('Ketik ID, jenis, atau lokasi unit dulu'); return; }
+    if(unitsCache[val]){ handleScanResult(val); return; }
+    const matches = searchUnits(val);
+    if(matches.length === 1){ handleScanResult(matches[0]); }
+    else if(matches.length > 1){ showToast('Ada '+matches.length+' hasil, ketuk salah satu di bawah'); }
+    else { showToast('Tidak ditemukan unit yang cocok'); }
+  });
+  document.getElementById('scan-manual-input').addEventListener('keydown', (e)=>{ if(e.key==='Enter') document.getElementById('scan-manual-btn').click(); });
+  document.getElementById('scan-manual-input').addEventListener('input', ()=>{
+    const q = document.getElementById('scan-manual-input').value.trim().toLowerCase();
+    const resultsEl = document.getElementById('scan-search-results');
+    resultsEl.innerHTML = '';
+    if(!q){ return; }
+    const matches = searchUnits(q);
+    matches.slice(0,8).forEach(id=>{
+      const u = unitsCache[id];
+      const row = document.createElement('div');
+      row.className = 'scan-result-row';
+      row.innerHTML = `<div class="id">${id}</div><div class="name">${escapeHTML(unitLabel(u))}</div><div class="loc">${escapeHTML(u.gedung)}, ${escapeHTML(u.lantai)}</div>`;
+      row.addEventListener('click', ()=> handleScanResult(id));
+      resultsEl.appendChild(row);
+    });
+  });
+  function searchUnits(q){
+    q = q.toLowerCase();
+    return Object.keys(unitsCache).filter(id=>{
+      const u = unitsCache[id];
+      return id.toLowerCase().includes(q) || (u.tipe||'').toLowerCase().includes(q) || (u.lantai||'').toLowerCase().includes(q) || (u.gedung||'').toLowerCase().includes(q) || (u.model||'').toLowerCase().includes(q);
+    });
+  }
+
+  async function startScan(){
+    document.getElementById('scan-overlay').classList.add('active');
+    document.getElementById('scan-manual-input').value = '';
+    document.getElementById('scan-search-results').innerHTML = '';
+    document.getElementById('scan-status').textContent = 'Meminta akses kamera...';
+    try{
+      scanStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+      const video = document.getElementById('scan-video');
+      video.srcObject = scanStream;
+      document.getElementById('scan-status').textContent = 'Arahkan kamera ke QR unit, atau ketik ID manual di bawah.';
+      scanLoop();
+    }catch(e){ document.getElementById('scan-status').textContent = 'Kamera tidak bisa diakses. Ketik ID unit manual di bawah.'; }
+  }
+  function stopScan(){
+    document.getElementById('scan-overlay').classList.remove('active');
+    if(scanRAF) cancelAnimationFrame(scanRAF);
+    if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
+  }
+  function scanLoop(){
+    const video = document.getElementById('scan-video');
+    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+    function tick(){
+      if(!scanStream) return;
+      if(video.readyState === video.HAVE_ENOUGH_DATA){
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        ctx.drawImage(video,0,0,canvas.width,canvas.height);
+        const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+        const code = window.jsQR ? window.jsQR(imgData.data, imgData.width, imgData.height) : null;
+        if(code && code.data){ handleScanResult(code.data.trim()); return; }
+      }
+      scanRAF = requestAnimationFrame(tick);
+    }
+    scanRAF = requestAnimationFrame(tick);
+  }
+  function handleScanResult(text){
+    stopScan();
+    if(unitsCache[text]){
+      if(navigator.vibrate) try{ navigator.vibrate(80); }catch(e){}
+      const u = unitsCache[text];
+      currentGedungKode = u.gedungKode;
+      unitBackTarget = 'gedung';
+      showToast('Terhubung ke '+text);
+      openUnit(text);
+    } else { showToast('ID "'+text+'" tidak ditemukan'); }
+  }
+
+  /* ---------------- init ---------------- */
+  ['w-lantai-nama','w-lantai-kode','w-tipe'].forEach(id=> document.getElementById(id).addEventListener('input', updateWizardIdPreview));
+  initStorage();
+  initDownloads();
+  ensureProfile();
+})();
+</script>
+</body>
+</html>
